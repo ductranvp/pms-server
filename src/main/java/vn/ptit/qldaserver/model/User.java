@@ -52,7 +52,6 @@ public class User extends AuditEvent implements Serializable {
 
     @NotBlank
     @NaturalId
-    @Email
     private String email;
 
     @JsonIgnore

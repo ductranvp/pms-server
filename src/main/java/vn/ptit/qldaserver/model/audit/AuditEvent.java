@@ -22,12 +22,12 @@ public abstract class AuditEvent implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @CreatedBy
-    @Column(name = "created_by", nullable = false, length = 50, updatable = false)
+    @Column(name = "created_by", updatable = false)
     @JsonIgnore
     private String createdBy;
 
     @CreatedDate
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date", updatable = false)
     @JsonIgnore
     private Instant createdDate = Instant.now();
 
