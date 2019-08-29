@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Account activation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" href="${baseUrl}/favicon.ico"/>
+</head>
+<body>
+<p>Dear <span th:text="${user.getFirstName()}"></span></p>
+<p>You've receive this email due to account creation or your request. Follow instruction below.</p>
+<p>Click
+    <a th:href="${activationLink}">here</a>
+    to activate your account.
+</p>
+<p>
+    <span>Regards, </span>
+    <br/>
+    <em>QLDA Team.</em>
+</p>
+</body>
+</html>

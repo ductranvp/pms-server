@@ -76,7 +76,9 @@ public class AccountResource {
                     HttpStatus.BAD_REQUEST);
         }
         User user = userService.registerUser(signUpRequest);
-        mailService.sendActivationMail(user.getEmail(), user.getActivationKey());
+        log.info("Created user successfully: {}", user.getUsername());
+        mailService.sendActivationMail(user);
+        log.info("Sending activation key to email: {}", user.getEmail());
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/api/users/{username}")
                 .buildAndExpand(user.getUsername()).toUri();
@@ -95,11 +97,11 @@ public class AccountResource {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            if (user.getActivationKey().isEmpty()) {
-                return new ResponseEntity(new ApiResponse(false, "No activation key found"), HttpStatus.BAD_REQUEST);
+            if (user.isActivated()) {
+                return new ResponseEntity(new ApiResponse(false, "Your account is activated"), HttpStatus.BAD_REQUEST);
             } else {
-                log.info("Resend activation key for email: {}", email);
-                mailService.sendActivationMail(user.getEmail(), user.getActivationKey());
+                log.info("Resending activation key to email: {}", email);
+                mailService.sendActivationMail(user);
                 return ResponseEntity.ok(HttpStatus.OK);
             }
         } else {
@@ -115,7 +117,7 @@ public class AccountResource {
             user.setResetKey(RandomUtil.generateResetKey());
             userRepository.save(user);
             log.info("Sending reset password request to email: {}", email);
-            mailService.sendResetPasswordMail(user.getEmail(), user.getResetKey());
+            mailService.sendResetPasswordMail(user);
             return ResponseEntity.ok(HttpStatus.OK);
         } else {
             return new ResponseEntity(new ApiResponse(false, "Email not found"), HttpStatus.BAD_REQUEST);
