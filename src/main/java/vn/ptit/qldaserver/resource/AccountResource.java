@@ -22,7 +22,7 @@ import vn.ptit.qldaserver.repository.AuthorityRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
 import vn.ptit.qldaserver.security.JwtTokenProvider;
 import vn.ptit.qldaserver.payload.ApiResponse;
-import vn.ptit.qldaserver.payload.JwtAuthenticationResponse;
+import vn.ptit.qldaserver.payload.JwtTokenResponse;
 import vn.ptit.qldaserver.payload.LoginRequest;
 import vn.ptit.qldaserver.payload.SignUpRequest;
 
@@ -31,8 +31,8 @@ import java.net.URI;
 import java.util.Collections;
 
 @RestController
-@RequestMapping("/api/auth")
-public class AuthResource {
+@RequestMapping("/api/account")
+public class AccountResource {
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -61,7 +61,7 @@ public class AuthResource {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        return ResponseEntity.ok(new JwtTokenResponse(jwt));
     }
 
     @PostMapping("/register")
@@ -85,10 +85,10 @@ public class AuthResource {
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
 
         Authority userRole = authorityRepository.findByName(AuthorityName.ROLE_USER)
-                .orElseThrow(() -> new AppException("User Role not set."));
+                .orElseThrow(() -> new AppException("User authority not set."));
 
         user.setAuthorities(Collections.singleton(userRole));
-        user.setCreatedBy(user.getUsername());
+        user.setActivated(true);
         User result = userRepository.save(user);
 
         URI location = ServletUriComponentsBuilder

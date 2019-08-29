@@ -24,7 +24,7 @@ public abstract class AuditEvent implements Serializable {
     @CreatedBy
     @Column(name = "created_by", updatable = false)
     @JsonIgnore
-    private String createdBy;
+    private Long createdBy;
 
     @CreatedDate
     @Column(name = "created_date", updatable = false)
@@ -34,7 +34,7 @@ public abstract class AuditEvent implements Serializable {
     @LastModifiedBy
     @Column(name = "last_modified_by", length = 50)
     @JsonIgnore
-    private String lastModifiedBy;
+    private Long lastModifiedBy;
 
     @LastModifiedDate
     @Column(name = "last_modified_date")

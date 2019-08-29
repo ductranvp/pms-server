@@ -9,7 +9,6 @@ import org.hibernate.annotations.NaturalId;
 import vn.ptit.qldaserver.model.audit.AuditEvent;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -69,6 +68,6 @@ public class User extends AuditEvent implements Serializable {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_authority",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "authority_name"))
+            inverseJoinColumns = @JoinColumn(name = "authority_id"))
     private Set<Authority> authorities = new HashSet<>();
 }
