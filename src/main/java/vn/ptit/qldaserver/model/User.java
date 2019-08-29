@@ -62,9 +62,6 @@ public class User extends AuditEvent implements Serializable {
     private String resetKey;
 
     @JsonIgnore
-    private boolean deleted;
-
-    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_authority",
             joinColumns = @JoinColumn(name = "user_id"),

@@ -17,7 +17,7 @@ public class ProjectResource {
 
     @GetMapping
     public ResponseEntity<?> getAllProjects(){
-        List<Project> projects = projectRepository.findAll();
+        List<Project> projects = projectRepository.findByDeletedFalse();
         return ResponseEntity.ok(projects);
     }
 
