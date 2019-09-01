@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Account activation</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="shortcut icon" href="${baseUrl}/favicon.ico"/>
+    <title th:text="#{email.activation.title}">QLDA account activation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
 </head>
 <body>
-<p>Dear <span th:text="${user.getFirstName()}"></span></p>
-<p>You've receive this email due to account creation or your request. Follow instruction below.</p>
-<p>Click
-    <a th:href="${activationLink}">here</a>
-    to activate your account.
+<p th:text="#{email.activation.greeting(${user.getFirstName()})}">
+    Dear
+</p>
+<p th:text="#{email.activation.text1}">
+    Your account has been created, please click on the URL below to activate it:
 </p>
 <p>
-    <span>Regards, </span>
+    <a th:href="${baseUrl}+ 'activate?key=' + ${user.getActivationKey()}"
+       th:text="${baseUrl}+ 'activate?key=' + ${user.getActivationKey()}">Activation Link</a>
+</p>
+<p>
+    <span th:text="#{email.activation.text2}">Regards, </span>
     <br/>
-    <em>QLDA Team.</em>
+    <em th:text="#{email.signature}">QLDA Team.</em>
 </p>
 </body>
 </html>

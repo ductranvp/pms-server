@@ -4,7 +4,6 @@ import org.apache.commons.lang3.CharEncoding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -16,6 +15,7 @@ import vn.ptit.qldaserver.model.User;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 import static vn.ptit.qldaserver.util.CommonConstants.*;
@@ -25,14 +25,23 @@ public class MailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${qlda.mail.from}")
     private String host;
 
-    private final SpringTemplateEngine templateEngine;
+    @Value("${qlda.mail.base-url}")
+    private String clientBaseUrl;
 
-    public MailService(SpringTemplateEngine templateEngine) {
+    private final SpringTemplateEngine templateEngine;
+    private final MessageSource messageSource;
+
+    private static final String USER = "user";
+    private static final String BASE_URL = "baseUrl";
+
+    public MailService(SpringTemplateEngine templateEngine, MessageSource messageSource) {
         this.templateEngine = templateEngine;
+        this.messageSource = messageSource;
     }
+
 
     @Async
     public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml){
@@ -50,22 +59,15 @@ public class MailService {
     }
 
     @Async
-    public void sendActivationMail(User user) {
-        Context context = new Context(Locale.ROOT);
-        String link = CLIENT_BASE_URL + "/activate?key=" + user.getActivationKey();
-        context.setVariable("user", user);
-        context.setVariable("activationLink", link);
-        String content = templateEngine.process("activationEmail", context);
-        sendEmail(user.getEmail(), "Account Activation", content, false, true);
+    public void sendEmailFromTemplate(User user, String templateName, String titleKey) {
+        Locale locale = Locale.forLanguageTag(user.getLangKey() == null ? "" : user.getLangKey());
+        Context context = new Context(locale);
+        context.setVariable(USER, user);
+        context.setVariable(BASE_URL, clientBaseUrl);
+        String content = templateEngine.process(templateName, context);
+        String subject = messageSource.getMessage(titleKey, null, locale);
+        sendEmail(user.getEmail(), subject, content, false, true);
     }
 
-    @Async
-    public void sendResetPasswordMail(User user){
-        Context context = new Context(Locale.ROOT);
-        String link = CLIENT_BASE_URL + "/resetPassword/finish?key=" + user.getResetKey();
-        context.setVariable("user", user);
-        context.setVariable("resetLink", link);
-        String content = templateEngine.process("resetPasswordEmail", context);
-        sendEmail(user.getEmail(), "Password Reset", content, false, true);
-    }
+
 }

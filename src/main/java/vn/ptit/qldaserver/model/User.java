@@ -49,6 +49,9 @@ public class User extends AuditEvent implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "lang_key")
+    private String langKey;
+
     @NotBlank
     @NaturalId
     private String email;

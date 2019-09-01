@@ -61,7 +61,7 @@ public class UserService {
     }
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
-        log.info("Resetting user's password for reset key {}", key);
+        log.info("Resetting user password for reset key {}", key);
         Optional<User> optionalUser = userRepository.findOneByResetKey(key);
         if (optionalUser.isPresent()){
             User user = optionalUser.get();
