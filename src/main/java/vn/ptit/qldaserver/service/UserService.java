@@ -5,11 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import vn.ptit.qldaserver.dto.AccountDto;
 import vn.ptit.qldaserver.exception.AppException;
 import vn.ptit.qldaserver.model.Authority;
 import vn.ptit.qldaserver.model.User;
 import vn.ptit.qldaserver.model.enumeration.AuthorityName;
-import vn.ptit.qldaserver.payload.SignUpRequest;
+import vn.ptit.qldaserver.dto.SignUpRequestDto;
 import vn.ptit.qldaserver.repository.AuthorityRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
 import vn.ptit.qldaserver.util.RandomUtil;
@@ -33,7 +34,7 @@ public class UserService {
     @Autowired
     MailService mailService;
 
-    public User registerUser(SignUpRequest request) {
+    public User registerUser(SignUpRequestDto request) {
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -44,7 +45,7 @@ public class UserService {
         Authority userRole = authorityRepository.findByName(AuthorityName.ROLE_USER)
                 .orElseThrow(() -> new AppException("User authority not set."));
         user.setAuthorities(Collections.singleton(userRole));
-        log.info("Created Information for User: {}", user);
+        log.info("Created information for User: {}", user);
         return userRepository.save(user);
     }
 
@@ -70,5 +71,9 @@ public class UserService {
             userRepository.save(user);
         }
         return optionalUser;
+    }
+
+    public User getCurrentUser() {
+        return null;
     }
 }

@@ -1,13 +1,13 @@
-package vn.ptit.qldaserver.payload;
+package vn.ptit.qldaserver.dto;
 
 import lombok.Data;
 
 @Data
-public class JwtTokenResponse {
+public class JwtTokenResponseDto {
     private String accessToken;
     private String tokenType = "Bearer";
 
-    public JwtTokenResponse(String accessToken) {
+    public JwtTokenResponseDto(String accessToken) {
         this.accessToken = accessToken;
     }
 }

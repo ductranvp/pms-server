@@ -1,4 +1,4 @@
-package vn.ptit.qldaserver.payload;
+package vn.ptit.qldaserver.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
+public class LoginRequestDto {
     @NotBlank
     private String usernameOrEmail;
     @NotBlank

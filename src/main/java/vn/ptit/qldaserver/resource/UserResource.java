@@ -21,7 +21,7 @@ public class UserResource {
     UserRepository userRepository;
 
     @GetMapping
-    @Secured(AuthoritiesConstants.ROLE_ADMIN)
+    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<?> getAllUsers(){
         List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users);

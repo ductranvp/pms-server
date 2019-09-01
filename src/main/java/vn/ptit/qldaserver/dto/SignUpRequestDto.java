@@ -1,4 +1,4 @@
-package vn.ptit.qldaserver.payload;
+package vn.ptit.qldaserver.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignUpRequest {
+public class SignUpRequestDto {
     @NotBlank
     private String firstName;
 

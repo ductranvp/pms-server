@@ -13,11 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import vn.ptit.qldaserver.dto.*;
 import vn.ptit.qldaserver.model.User;
-import vn.ptit.qldaserver.payload.*;
 import vn.ptit.qldaserver.repository.AuthorityRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
+import vn.ptit.qldaserver.security.AuthoritiesConstants;
 import vn.ptit.qldaserver.security.JwtTokenProvider;
+import vn.ptit.qldaserver.security.SecurityUtils;
 import vn.ptit.qldaserver.service.MailService;
 import vn.ptit.qldaserver.service.UserService;
 import vn.ptit.qldaserver.util.RandomUtil;
@@ -51,66 +53,84 @@ public class AccountResource {
     @Autowired
     MailService mailService;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        log.info("Processing login request for account: {}", loginRequest.getUsernameOrEmail());
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticate(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        log.info("Authenticating for account: {}", loginRequestDto.getUsernameOrEmail());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsernameOrEmail(),
-                        loginRequest.getPassword()
+                        loginRequestDto.getUsernameOrEmail(),
+                        loginRequestDto.getPassword()
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtTokenResponse(jwt));
+        return ResponseEntity.ok(new JwtTokenResponseDto(jwt));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new ResponseEntity<>(new ApiResponse(false, "Username is already taken!"),
+    public ResponseEntity<?> registerAccount(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
+        if (userRepository.existsByUsername(signUpRequestDto.getUsername())) {
+            return new ResponseEntity<>(new ApiResponseDto(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new ResponseEntity<>(new ApiResponse(false, "Email Address already in use!"),
+        if (userRepository.existsByEmail(signUpRequestDto.getEmail())) {
+            return new ResponseEntity<>(new ApiResponseDto(false, "Email address already in use!"),
                     HttpStatus.BAD_REQUEST);
         }
-        User user = userService.registerUser(signUpRequest);
-        log.info("Created user successfully: {}", user.getUsername());
+        User user = userService.registerUser(signUpRequestDto);
         log.info("Sending activation key to email: {}", user.getEmail());
-        mailService.sendEmailFromTemplate(user,"activationEmail", "email.activation.title");
+        mailService.sendEmailFromTemplate(user, "activationEmail", "email.activation.title");
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/api/users/{username}")
                 .buildAndExpand(user.getUsername()).toUri();
-        return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+        return ResponseEntity.created(location).body(new ApiResponseDto(true, "User registered successfully"));
     }
 
-    @GetMapping("/activate")
+    @GetMapping("/current")
+    public ResponseEntity<AccountDto> getCurrentAccount() {
+        Optional.ofNullable(userService.getCurrentUser())
+                .map(user -> new ResponseEntity<>(new AccountDto(user), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+        return null;
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateAccount(@RequestBody AccountDto accountDto) {
+
+        return null;
+    }
+
+    @PostMapping("/change_password")
+    public ResponseEntity<?> changePassword() {
+        return null;
+    }
+
+    @PostMapping("/activate")
     public ResponseEntity<String> activateAccount(@RequestParam(value = "key") String key) {
         return userService.activateRegistration(key)
                 .map(user -> new ResponseEntity<String>(HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    @PostMapping("/activationKey")
+    @PostMapping("/activation_key")
     public ResponseEntity<?> resendActivationKey(@RequestParam(value = "email") String email) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.isActivated()) {
-                return new ResponseEntity<>(new ApiResponse(false, "Your account is activated"), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ApiResponseDto(false, "Your account has been already activated"), HttpStatus.BAD_REQUEST);
             } else {
-                log.info("Re-Sending activation key to email: {}", email);
+                log.info("Resending activation key to email: {}", email);
                 mailService.sendEmailFromTemplate(user, "activationEmail", "email.activation.title");
                 return ResponseEntity.ok(HttpStatus.OK);
             }
         } else {
-            return new ResponseEntity<>(new ApiResponse(false, "Email not found"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponseDto(false, "Email not found"), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("/reset/request")
-    public ResponseEntity<?> resetPassword(@RequestParam(value = "email") String email) {
+    @PostMapping("/reset_password/request")
+    public ResponseEntity<?> requestResetPassword(@RequestParam(value = "email") String email) {
         Optional<User> optional = userRepository.findByEmail(email);
         if (optional.isPresent()) {
             User user = optional.get();
@@ -120,23 +140,23 @@ public class AccountResource {
             mailService.sendEmailFromTemplate(user, "passwordResetEmail", "email.reset.title");
             return ResponseEntity.ok(HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new ApiResponse(false, "Email not found"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponseDto(false, "Email not found"), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("/reset/finish")
-    public ResponseEntity<?> finishResetPassword(@RequestBody KeyAndPasswordVM keyAndPassword) {
+    @PostMapping("/reset_password/finish")
+    public ResponseEntity<?> finishResetPassword(@RequestBody KeyAndPasswordDto keyAndPassword) {
         return userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey())
                 .map(user -> new ResponseEntity<String>(HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    @GetMapping("/reset/check")
+    @PostMapping("/reset_password/check")
     public ResponseEntity<?> checkResetKey(@RequestParam(value = "key") String key) {
         Optional<User> optionalUser = userRepository.findOneByResetKey(key);
-        if (optionalUser.isPresent()){
-            return new ResponseEntity<>(new ApiResponse(true, "Reset key existed"), HttpStatus.OK);
+        if (optionalUser.isPresent()) {
+            return new ResponseEntity<>(new ApiResponseDto(true, "Reset key existed"), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ApiResponse(false, "Reset key not found"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiResponseDto(false, "Reset key not found"), HttpStatus.BAD_REQUEST);
     }
 }

@@ -1,9 +1,9 @@
-package vn.ptit.qldaserver.payload;
+package vn.ptit.qldaserver.dto;
 
 import lombok.Data;
 
 @Data
-public class KeyAndPasswordVM {
+public class KeyAndPasswordDto {
     private String key;
     private String newPassword;
 }
