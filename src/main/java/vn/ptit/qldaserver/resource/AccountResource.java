@@ -69,11 +69,11 @@ public class AccountResource {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerAccount(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
-        if (userRepository.existsByUsername(signUpRequestDto.getUsername())) {
+        if (userRepository.existsByUsername(signUpRequestDto.getUsername().toLowerCase())) {
             return new ResponseEntity<>(new ApiResponseDto(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
-        if (userRepository.existsByEmail(signUpRequestDto.getEmail())) {
+        if (userRepository.existsByEmail(signUpRequestDto.getEmail().toLowerCase())) {
             return new ResponseEntity<>(new ApiResponseDto(false, "Email address already in use!"),
                     HttpStatus.BAD_REQUEST);
         }

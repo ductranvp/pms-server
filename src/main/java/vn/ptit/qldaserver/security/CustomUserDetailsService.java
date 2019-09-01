@@ -10,6 +10,7 @@ import vn.ptit.qldaserver.model.User;
 import vn.ptit.qldaserver.repository.UserRepository;
 
 import javax.transaction.Transactional;
+import java.util.Locale;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -19,10 +20,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         // Let people login with either username or email
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+        String lowercaseLogin = usernameOrEmail.toLowerCase(Locale.ENGLISH);
+        User user = userRepository.findByUsernameOrEmail(lowercaseLogin, lowercaseLogin)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with username or email : " + usernameOrEmail)
+                        new UsernameNotFoundException("User not found with username or email : " + lowercaseLogin)
                 );
+        if (!user.isActivated()){
+            throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
+        }
         return UserPrincipal.create(user);
     }
 

@@ -38,8 +38,8 @@ public class UserService {
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
+        user.setUsername(request.getUsername().toLowerCase());
+        user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setActivationKey(RandomUtil.generateActivationKey());
         Authority userRole = authorityRepository.findByName(AuthorityName.ROLE_USER)
