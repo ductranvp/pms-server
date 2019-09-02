@@ -88,16 +88,23 @@ public class AccountResource {
 
     @GetMapping("/current")
     public ResponseEntity<AccountDto> getCurrentAccount() {
-        Optional.ofNullable(userService.getCurrentUser())
+        return Optional.ofNullable(userService.getCurrentUser())
                 .map(user -> new ResponseEntity<>(new AccountDto(user), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-        return null;
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateAccount(@RequestBody AccountDto accountDto) {
-
-        return null;
+        final String username = SecurityUtils.getCurrentUsername();
+        Optional<User> existingUser = userRepository.findOneByEmail(accountDto.getEmail());
+        if (existingUser.isPresent() && (!existingUser.get().getUsername().equalsIgnoreCase(username))) {
+            return new ResponseEntity<>(new ApiResponseDto(false, "Update user failed", null), HttpStatus.BAD_REQUEST);
+        }
+        if (userRepository.findOneByUsername(username).isPresent()){
+            userService.updateUser(accountDto);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @PostMapping("/change_password")

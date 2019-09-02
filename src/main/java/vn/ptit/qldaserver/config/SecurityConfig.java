@@ -57,6 +57,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        final String[] AUTH_WHITELIST = {
+                // Resources
+                "/",
+                "/favicon.ico",
+                "/**/*.png",
+                "/**/*.gif",
+                "/**/*.svg",
+                "/**/*.jpg",
+                "/**/*.html",
+                "/**/*.css",
+                "/**/*.js",
+                // Swagger ui
+                "/v2/api-docs",
+                "/swagger-resources",
+                "/swagger-resources/**",
+                "/configuration/ui",
+                "/configuration/security",
+                "/swagger-ui.html",
+                "/webjars/**",
+                "/csrf",
+                // other public endpoints of your API may be appended to this array
+                "/api/account/**",
+        };
+
         http
                 .cors()
                 .and()
@@ -69,23 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/",
-                        "/favicon.ico",
-                        "/**/*.png",
-                        "/**/*.gif",
-                        "/**/*.svg",
-                        "/**/*.jpg",
-                        "/**/*.html",
-                        "/**/*.css",
-                        "/**/*.js")
-                .permitAll()
-                .antMatchers("/h2-console/**")
-                .permitAll()
-                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**", "/csrf")
-                .permitAll()
-                .antMatchers("/api/account/**")
-                .permitAll()
-                .antMatchers(HttpMethod.GET, "/api/polls/**", "/api/users/**")
+                .antMatchers(AUTH_WHITELIST)
                 .permitAll()
                 .anyRequest()
                 .authenticated();
@@ -94,10 +102,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     }
-
-//    @Override
-//    public void configure(WebSecurity web) throws Exception {
-//        web.ignoring()
-//                .antMatchers("/i18n/**");
-//    }
 }

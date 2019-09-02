@@ -23,10 +23,21 @@ public class JwtTokenProvider {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs); // 7 days
 
         return Jwts.builder()
                 .setSubject(Long.toString(userPrincipal.getId()))
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    public String generateTokenForSwagger(String userId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + 86400000); // 1 day
+        return Jwts.builder()
+                .setSubject(userId)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

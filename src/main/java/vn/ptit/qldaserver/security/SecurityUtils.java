@@ -15,7 +15,7 @@ public final class SecurityUtils {
      *
      * @return the login of the current user
      */
-    public static String getCurrentUserLogin() {
+    public static String getCurrentUsername() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
         String userName = null;

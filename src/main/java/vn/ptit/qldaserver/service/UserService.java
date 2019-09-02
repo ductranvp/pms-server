@@ -6,13 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.ptit.qldaserver.dto.AccountDto;
+import vn.ptit.qldaserver.dto.SignUpRequestDto;
 import vn.ptit.qldaserver.exception.AppException;
 import vn.ptit.qldaserver.model.Authority;
 import vn.ptit.qldaserver.model.User;
 import vn.ptit.qldaserver.model.enumeration.AuthorityName;
-import vn.ptit.qldaserver.dto.SignUpRequestDto;
 import vn.ptit.qldaserver.repository.AuthorityRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
+import vn.ptit.qldaserver.security.SecurityUtils;
 import vn.ptit.qldaserver.util.RandomUtil;
 
 import java.util.Collections;
@@ -52,7 +53,7 @@ public class UserService {
     public Optional<User> activateRegistration(String key) {
         log.info("Activating user for activation key {}", key);
         Optional<User> optionalUser = userRepository.findOneByActivationKey(key);
-        if (optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setActivated(true);
             user.setActivationKey(null);
@@ -64,7 +65,7 @@ public class UserService {
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.info("Resetting user password for reset key {}", key);
         Optional<User> optionalUser = userRepository.findOneByResetKey(key);
-        if (optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setPassword(passwordEncoder.encode(newPassword));
             user.setResetKey(null);
@@ -74,6 +75,18 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        return null;
+        log.info("Querying current user info");
+        return userRepository.findByUsername(SecurityUtils.getCurrentUsername()).orElse(null);
+    }
+
+    public void updateUser(AccountDto accountDto) {
+        User user = userRepository.findOneByUsername(SecurityUtils.getCurrentUsername()).get();
+        user.setFirstName(accountDto.getFirstName());
+        user.setLastName(accountDto.getLastName());
+        user.setEmail(accountDto.getEmail());
+        user.setLangKey(accountDto.getLangKey());
+        user.setImageUrl(accountDto.getImageUrl());
+        log.debug("Changed information for User: {}", user);
+        userRepository.save(user);
     }
 }
