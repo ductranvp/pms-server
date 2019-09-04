@@ -26,4 +26,6 @@ public class SignUpRequestDto {
 
     @NotBlank
     private String password;
+
+    private String langKey;
 }

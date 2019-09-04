@@ -12,12 +12,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import vn.ptit.qldaserver.dto.*;
 import vn.ptit.qldaserver.model.User;
 import vn.ptit.qldaserver.repository.AuthorityRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
-import vn.ptit.qldaserver.security.AuthoritiesConstants;
 import vn.ptit.qldaserver.security.JwtTokenProvider;
 import vn.ptit.qldaserver.security.SecurityUtils;
 import vn.ptit.qldaserver.service.MailService;
@@ -64,7 +64,7 @@ public class AccountResource {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtTokenResponseDto(jwt));
+        return new ResponseEntity<>(new JwtTokenResponseDto(jwt), HttpStatus.OK);
     }
 
     @PostMapping("/register")
@@ -94,13 +94,14 @@ public class AccountResource {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateAccount(@RequestBody AccountDto accountDto) {
+    public ResponseEntity<?> updateAccount(@RequestPart("accountDto") AccountDto accountDto, @RequestPart(required = false, name = "image") MultipartFile image) {
         final String username = SecurityUtils.getCurrentUsername();
+        log.info("Request to update account: {}", username);
         Optional<User> existingUser = userRepository.findOneByEmail(accountDto.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getUsername().equalsIgnoreCase(username))) {
             return new ResponseEntity<>(new ApiResponseDto(false, "Update user failed", null), HttpStatus.BAD_REQUEST);
         }
-        if (userRepository.findOneByUsername(username).isPresent()){
+        if (userRepository.findOneByUsername(username).isPresent()) {
             userService.updateUser(accountDto);
             return new ResponseEntity(HttpStatus.OK);
         }
@@ -108,8 +109,21 @@ public class AccountResource {
     }
 
     @PostMapping("/change_password")
-    public ResponseEntity<?> changePassword() {
-        return null;
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
+        Optional<User> user = userRepository.findByUsername(SecurityUtils.getCurrentUsername());
+        log.info("Request to change password for account: {}", SecurityUtils.getCurrentUsername());
+        if (user.isPresent()) {
+            if (passwordEncoder.matches(changePasswordDto.getOldPassword(), user.get().getPassword())) {
+                User entity = user.get();
+                entity.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+                userRepository.save(entity);
+                return new ResponseEntity<>(new ApiResponseDto(true, "Password changed successfully", null), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ApiResponseDto(false, "Old password not matches", null), HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>(new ApiResponseDto(false, "Account isn't logged in", null), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/activate")

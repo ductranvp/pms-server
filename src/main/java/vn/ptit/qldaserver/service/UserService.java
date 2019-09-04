@@ -42,6 +42,7 @@ public class UserService {
         user.setUsername(request.getUsername().toLowerCase());
         user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setLangKey(request.getLangKey());
         user.setActivationKey(RandomUtil.generateActivationKey());
         Authority userRole = authorityRepository.findByName(AuthorityName.ROLE_USER)
                 .orElseThrow(() -> new AppException("User authority not set."));
