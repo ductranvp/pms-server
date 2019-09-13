@@ -1,7 +1,18 @@
 package vn.ptit.qldaserver.service;
 
-import org.springframework.stereotype.Service;
+import vn.ptit.qldaserver.domain.Project;
+import vn.ptit.qldaserver.service.dto.ProjectDto;
 
-@Service
-public class ProjectService {
+import java.util.List;
+
+public interface ProjectService {
+    Project save(ProjectDto projectDto);
+
+    void delete(Long id);
+
+    void close(Long id);
+
+    List<Project> findAll();
+
+    Project findOne(Long id);
 }

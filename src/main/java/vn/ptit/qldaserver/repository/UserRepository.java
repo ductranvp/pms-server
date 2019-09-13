@@ -1,7 +1,7 @@
 package vn.ptit.qldaserver.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import vn.ptit.qldaserver.model.User;
+import vn.ptit.qldaserver.domain.User;
 
 import java.util.List;
 import java.util.Optional;
