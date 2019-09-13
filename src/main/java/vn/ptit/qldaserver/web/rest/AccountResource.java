@@ -12,20 +12,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import vn.ptit.qldaserver.service.dto.*;
 import vn.ptit.qldaserver.domain.User;
 import vn.ptit.qldaserver.repository.AuthorityRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
 import vn.ptit.qldaserver.security.JwtTokenProvider;
 import vn.ptit.qldaserver.security.SecurityUtils;
+import vn.ptit.qldaserver.service.MailService;
 import vn.ptit.qldaserver.service.UserService;
-import vn.ptit.qldaserver.service.impl.MailServiceImpl;
-import vn.ptit.qldaserver.util.RandomUtil;
+import vn.ptit.qldaserver.service.dto.*;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +47,7 @@ public class AccountResource {
     UserService userService;
 
     @Autowired
-    MailServiceImpl mailService;
+    MailService mailService;
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@Valid @RequestBody LoginDto loginDto) {
@@ -70,20 +66,17 @@ public class AccountResource {
     @PostMapping("/register")
     public ResponseEntity<?> registerAccount(@Valid @RequestBody SignUpDto signUpDto) {
         if (userRepository.existsByUsername(signUpDto.getUsername().toLowerCase())) {
-            return new ResponseEntity<>(new ApiResponseDto(false, "Username is already taken!"),
+            return new ResponseEntity<>(ApiError.badRequest("Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
         if (userRepository.existsByEmail(signUpDto.getEmail().toLowerCase())) {
-            return new ResponseEntity<>(new ApiResponseDto(false, "Email address already in use!"),
+            return new ResponseEntity<>(ApiError.badRequest("Email address already in use!"),
                     HttpStatus.BAD_REQUEST);
         }
         User user = userService.registerUser(signUpDto);
         log.info("Sending activation key to email: {}", user.getEmail());
         mailService.sendEmailFromTemplate(user, "activationEmail", "email.activation.title");
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/api/users/{username}")
-                .buildAndExpand(user.getUsername()).toUri();
-        return ResponseEntity.created(location).body(new ApiResponseDto(true, "User registered successfully"));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/current")
@@ -99,7 +92,7 @@ public class AccountResource {
         log.info("Request to update account: {}", username);
         Optional<User> existingUser = userRepository.findOneByEmail(accountDto.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getUsername().equalsIgnoreCase(username))) {
-            return new ResponseEntity<>(new ApiResponseDto(false, "Update user failed", null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ApiError.badRequest("Update user failed"), HttpStatus.BAD_REQUEST);
         }
         if (userRepository.findOneByUsername(username).isPresent()) {
             userService.updateUser(accountDto);
@@ -117,12 +110,12 @@ public class AccountResource {
                 User entity = user.get();
                 entity.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
                 userRepository.save(entity);
-                return new ResponseEntity<>(new ApiResponseDto(true, "Password changed successfully", null), HttpStatus.OK);
+                return ResponseEntity.ok().build();
             } else {
-                return new ResponseEntity<>(new ApiResponseDto(false, "Old password not matches", null), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(ApiError.badRequest("Old password not matches"), HttpStatus.BAD_REQUEST);
             }
         } else {
-            return new ResponseEntity<>(new ApiResponseDto(false, "Account isn't logged in", null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ApiError.notFound("Account not found"), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -139,30 +132,22 @@ public class AccountResource {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             if (user.isActivated()) {
-                return new ResponseEntity<>(new ApiResponseDto(false, "Your account has been already activated"), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(ApiError.badRequest("Your account has been already activated"), HttpStatus.BAD_REQUEST);
             } else {
                 log.info("Resending activation key to email: {}", email);
                 mailService.sendEmailFromTemplate(user, "activationEmail", "email.activation.title");
                 return ResponseEntity.ok(HttpStatus.OK);
             }
         } else {
-            return new ResponseEntity<>(new ApiResponseDto(false, "Email not found"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ApiError.notFound("Email not found"), HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("/reset_password/request")
     public ResponseEntity<?> requestResetPassword(@RequestParam(value = "email") String email) {
-        Optional<User> optional = userRepository.findByEmail(email);
-        if (optional.isPresent()) {
-            User user = optional.get();
-            user.setResetKey(RandomUtil.generateResetKey());
-            userRepository.save(user);
-            log.info("Sending password reset request to email: {}", email);
-            mailService.sendEmailFromTemplate(user, "passwordResetEmail", "email.reset.title");
-            return ResponseEntity.ok(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new ApiResponseDto(false, "Email not found"), HttpStatus.BAD_REQUEST);
-        }
+        return userService.requestPasswordReset(email)
+                .map(user -> new ResponseEntity<String>(HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @PostMapping("/reset_password/finish")
@@ -172,17 +157,8 @@ public class AccountResource {
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    @PostMapping("/reset_password/check")
-    public ResponseEntity<?> checkResetKey(@RequestParam(value = "key") String key) {
-        Optional<User> optionalUser = userRepository.findOneByResetKey(key);
-        if (optionalUser.isPresent()) {
-            return new ResponseEntity<>(new ApiResponseDto(true, "Reset key existed"), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ApiResponseDto(false, "Reset key not found"), HttpStatus.BAD_REQUEST);
-    }
-
     @GetMapping("/init")
-    public void initAccount(){
+    public void initAccount() {
         userService.initAccount();
     }
 }

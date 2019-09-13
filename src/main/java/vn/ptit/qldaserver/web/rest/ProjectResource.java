@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.ptit.qldaserver.domain.Project;
 import vn.ptit.qldaserver.service.ProjectService;
-import vn.ptit.qldaserver.service.dto.ApiResponseDto;
+import vn.ptit.qldaserver.service.dto.ApiError;
 import vn.ptit.qldaserver.service.dto.ProjectDto;
 
 import java.util.List;
@@ -24,11 +24,10 @@ public class ProjectResource {
     public ResponseEntity<?> createProject(@RequestBody ProjectDto projectDto) {
         log.info("REST request to save Project : {}", projectDto);
         if (projectDto.getId() != null) {
-            return new ResponseEntity<>(
-                    new ApiResponseDto(false, "A new project cannot already have an ID"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ApiError.badRequest("A new project cannot already have an ID"), HttpStatus.BAD_REQUEST);
         }
         Project result = projectService.save(projectDto);
-        return new ResponseEntity<>(new ApiResponseDto(true, "Create project successfully", result), HttpStatus.OK);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/projects")
@@ -41,8 +40,9 @@ public class ProjectResource {
     @GetMapping("/projects/{id}")
     public ResponseEntity<?> getProject(@PathVariable Long id) {
         log.info("REST request to get Project : {}", id);
-        Project project = projectService.findOne(id);
-        return ResponseEntity.ok(project);
+        return projectService.findOne(id).map(
+                project -> ResponseEntity.ok().build()
+        ).orElse(new ResponseEntity<>(ApiError.notFound("Project not found"), HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/projects")

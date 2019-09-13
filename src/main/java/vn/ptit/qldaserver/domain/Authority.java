@@ -20,6 +20,7 @@ public class Authority implements Serializable {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @NaturalId
     @Column(length = 50, unique = true)
     private AuthorityName name;
 }

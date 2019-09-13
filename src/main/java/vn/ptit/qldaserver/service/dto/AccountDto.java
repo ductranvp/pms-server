@@ -16,6 +16,7 @@ public class AccountDto {
     private String username;
     private String firstName;
     private String lastName;
+    private boolean activated;
     private String email;
     private String imageUrl;
     private String langKey;
@@ -26,6 +27,7 @@ public class AccountDto {
         this.username = user.getUsername();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
+        this.activated = user.isActivated();
         this.email = user.getEmail();
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
