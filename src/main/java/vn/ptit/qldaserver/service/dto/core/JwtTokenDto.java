@@ -1,4 +1,4 @@
-package vn.ptit.qldaserver.service.dto;
+package vn.ptit.qldaserver.service.dto.core;
 
 import lombok.Data;
 

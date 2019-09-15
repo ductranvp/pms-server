@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDto {
+public class UserDto {
     private Long id;
     private String username;
     private String firstName;
@@ -22,7 +22,7 @@ public class AccountDto {
     private String langKey;
     private Set<String> authorities;
 
-    public AccountDto(User user) {
+    public UserDto(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.firstName = user.getFirstName();

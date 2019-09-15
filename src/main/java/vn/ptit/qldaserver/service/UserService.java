@@ -12,11 +12,13 @@ import vn.ptit.qldaserver.exception.AppException;
 import vn.ptit.qldaserver.repository.AuthorityRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
 import vn.ptit.qldaserver.security.SecurityUtils;
-import vn.ptit.qldaserver.service.dto.AccountDto;
-import vn.ptit.qldaserver.service.dto.SignUpDto;
+import vn.ptit.qldaserver.service.dto.UserDto;
+import vn.ptit.qldaserver.service.dto.core.SignUpDto;
+import vn.ptit.qldaserver.util.CommonConstants;
 import vn.ptit.qldaserver.util.RandomUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -33,22 +35,6 @@ public class UserService {
 
     @Autowired
     MailService mailService;
-
-    public User registerUser(SignUpDto request) {
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setUsername(request.getUsername().toLowerCase());
-        user.setEmail(request.getEmail().toLowerCase());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setLangKey(request.getLangKey());
-        user.setActivationKey(RandomUtil.generateActivationKey());
-        Authority userRole = authorityRepository.findByName(AuthorityName.ROLE_USER)
-                .orElseThrow(() -> new AppException("User authority not set."));
-        user.setAuthorities(Collections.singleton(userRole));
-        log.info("Created information for User: {}", user);
-        return userRepository.save(user);
-    }
 
     public Optional<User> activateRegistration(String key) {
         log.info("Activating user for activation key {}", key);
@@ -86,31 +72,98 @@ public class UserService {
         return optional;
     }
 
-    public User getCurrentUser() {
-        log.info("Querying current user info");
-        return userRepository.findByUsername(SecurityUtils.getCurrentUsername()).orElse(null);
+    public User registerUser(SignUpDto request) {
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setUsername(request.getUsername().toLowerCase());
+        user.setEmail(request.getEmail().toLowerCase());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setLangKey(request.getLangKey());
+        user.setActivationKey(RandomUtil.generateActivationKey());
+        Authority userRole = authorityRepository.findByName(AuthorityName.ROLE_USER)
+                .orElseThrow(() -> new AppException("User authority not set."));
+        user.setAuthorities(Collections.singleton(userRole));
+        log.info("Created information for User: {}", user);
+        return userRepository.save(user);
     }
 
-    public void updateUser(AccountDto accountDto) {
-        User user = userRepository.findOneByUsername(SecurityUtils.getCurrentUsername()).get();
-        user.setFirstName(accountDto.getFirstName());
-        user.setLastName(accountDto.getLastName());
-        user.setEmail(accountDto.getEmail());
-        user.setLangKey(accountDto.getLangKey());
-        user.setImageUrl(accountDto.getImageUrl());
-        if (accountDto.getAuthorities() != null) {
+    public User createUser(UserDto userDTO) {
+        User user = new User();
+        user.setUsername(userDTO.getUsername().toLowerCase());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setEmail(userDTO.getEmail().toLowerCase());
+        user.setImageUrl(userDTO.getImageUrl());
+        if (userDTO.getLangKey() == null) {
+            user.setLangKey(CommonConstants.DEFAULT_LANGUAGE); // default language
+        } else {
+            user.setLangKey(userDTO.getLangKey());
+        }
+        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        user.setPassword(encryptedPassword);
+        user.setResetKey(RandomUtil.generateResetKey());
+        user.setActivated(true);
+        if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = new HashSet<>();
-            accountDto.getAuthorities().forEach(authority ->
+            userDTO.getAuthorities().forEach(authorityName -> {
+                Authority authority = authorityRepository.findByName(AuthorityName.valueOf(authorityName)).get();
+                authorities.add(authority);
+            });
+            user.setAuthorities(authorities);
+        }
+        userRepository.save(user);
+        log.debug("Created Information for User: {}", user);
+        return user;
+    }
+
+    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+        Optional<User> optionalUser = userRepository.findOneByUsername(SecurityUtils.getCurrentUserLogin());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setEmail(email.toLowerCase());
+            user.setLangKey(langKey);
+            user.setImageUrl(imageUrl);
+            log.debug("Changed Information for User: {}", user);
+            userRepository.save(user);
+        }
+    }
+
+    public User updateUser(UserDto userDto) {
+        User user = userRepository.findOneByUsername(SecurityUtils.getCurrentUserLogin()).get();
+        user.setUsername(userDto.getUsername());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
+        user.setLangKey(userDto.getLangKey());
+        user.setActivated(userDto.isActivated());
+        user.setImageUrl(userDto.getImageUrl());
+        if (userDto.getAuthorities() != null) {
+            Set<Authority> authorities = new HashSet<>();
+            userDto.getAuthorities().forEach(authority ->
                     authorities.add(authorityRepository.findByName(AuthorityName.valueOf(authority)).get()));
             user.setAuthorities(authorities);
         }
         log.debug("Changed information for User: {}", user);
-        userRepository.save(user);
+        return userRepository.save(user);
+    }
+
+    public User getCurrentUser() {
+        log.info("Querying current user info");
+        return userRepository.findByUsername(SecurityUtils.getCurrentUserLogin()).orElse(null);
+    }
+
+    public void deleteUser(String username) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            userRepository.delete(user);
+            log.debug("Deleted User: {}", user);
+        });
     }
 
     public void initAccount() {
-        if (userRepository.findById(1L).isPresent() || userRepository.findByUsername("admin").isPresent() ||
-                userRepository.findByEmail("admin@gmail.com").isPresent()) {
+        if (userRepository.findByUsername("admin").isPresent() || userRepository.findByEmail("admin@gmail.com").isPresent()) {
             return;
         }
         User admin = new User();
@@ -125,5 +178,9 @@ public class UserService {
         admin.setFirstName("Admin");
         admin.setLastName("Admin");
         userRepository.save(admin);
+    }
+
+    public List<String> getAuthorities() {
+        return authorityRepository.findAll().stream().map(authority -> authority.getName().name()).collect(Collectors.toList());
     }
 }
