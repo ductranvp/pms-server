@@ -12,8 +12,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "task")
@@ -46,7 +44,7 @@ public class Task extends AuditEvent implements Serializable {
     private Instant endDate;
 
     @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    private TaskStatus status = TaskStatus.DRAFT;
 
     private boolean overdue = false;
 
@@ -58,21 +56,7 @@ public class Task extends AuditEvent implements Serializable {
     @JoinColumn(name = "parent_id")
     private Task parent;
 
-    @OneToMany(mappedBy = "parent")
-    private Set<Task> children = new HashSet<>();
-
-    @Nullable
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @ManyToMany
-    @JoinTable(name = "user_task",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> users = new HashSet<>();
-
-    public Task(Long parentId) {
-        this.id = parentId;
-    }
 }

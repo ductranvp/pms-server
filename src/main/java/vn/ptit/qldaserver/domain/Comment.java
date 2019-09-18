@@ -14,8 +14,8 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 @ToString
+@EqualsAndHashCode(callSuper = false)
 @Where(clause = "deleted=false")
 public class Comment extends AuditEvent implements Serializable {
     public static final long serialVersionUID = 1L;

@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="#{email.activation.title}">PM account activation</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}"/>
 </head>
 <body>
 <p th:text="#{email.activation.greeting(${user.getFirstName()})}">
@@ -13,8 +13,8 @@
     Your account has been created, please click on the URL below to activate it:
 </p>
 <p>
-    <a th:href="${baseUrl}+ '/activate?key=' + ${user.getActivationKey()}"
-       th:text="${baseUrl}+ '/activate?key=' + ${user.getActivationKey()}">Activation Link</a>
+    <a th:href="${baseUrl}+ '/invitation'"
+       th:text="${baseUrl}+ '/invitation'">Activation Link</a>
 </p>
 <p>
     <span th:text="#{email.activation.text2}">Regards, </span>

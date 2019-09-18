@@ -34,8 +34,4 @@ public class Category extends AuditEvent implements Serializable {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
-
-    public Category(Long categoryId) {
-        this.id = categoryId;
-    }
 }

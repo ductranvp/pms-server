@@ -1,5 +1,6 @@
 package vn.ptit.qldaserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import vn.ptit.qldaserver.domain.enumeration.InvitationStatus;
@@ -16,6 +17,7 @@ import java.io.Serializable;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class UserInvitation implements Serializable {
+    public static final long serialVersionUID = 1L;
     @EmbeddedId
     private UserInvitationKey id;
 
@@ -27,7 +29,6 @@ public class UserInvitation implements Serializable {
     @ManyToOne
     @MapsId("invitation_id")
     @JoinColumn(name = "invitation_id")
-    @JsonManagedReference
     private Invitation invitation;
 
     @Enumerated(EnumType.STRING)

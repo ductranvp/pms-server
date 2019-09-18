@@ -36,12 +36,6 @@ public class Project extends AuditEvent implements Serializable {
 
     private boolean deleted = false;
 
-    @ManyToMany
-    @JoinTable(name = "user_project",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> users = new HashSet<>();
-
     public Project(Long projectId) {
         this.id = projectId;
     }

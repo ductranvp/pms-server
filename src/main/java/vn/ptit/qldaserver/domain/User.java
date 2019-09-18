@@ -70,9 +70,14 @@ public class User extends AuditEvent implements Serializable {
     @Column(name = "receive_mail")
     private boolean receiveMail = true;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(name = "user_authority",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "authority_id"))
     private Set<Authority> authorities = new HashSet<>();
+
+    public User(Long id) {
+        this.id = id;
+    }
 }

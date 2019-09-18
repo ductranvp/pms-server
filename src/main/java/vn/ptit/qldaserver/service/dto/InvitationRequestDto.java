@@ -1,4 +1,4 @@
-package vn.ptit.qldaserver.service;
+package vn.ptit.qldaserver.service.dto;
 
 import lombok.Data;
 import vn.ptit.qldaserver.domain.Invitation;
@@ -7,10 +7,10 @@ import vn.ptit.qldaserver.domain.Project;
 import java.util.Set;
 
 @Data
-public class ProjectInvitationDto {
+public class InvitationRequestDto {
     private Long projectId;
     private String content;
-    private Set<String> listUsers;
+    private Set<String> listEmail;
 
     public Invitation toBean(){
         Invitation invitation = new Invitation();

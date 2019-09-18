@@ -47,9 +47,4 @@ public class ProjectService {
             throw new AppException("Project could not be found");
         }
     }
-
-    public Set<User> getUsersByProjectId(Long id) {
-        Project project = projectRepository.findById(id).get();
-        return project.getUsers();
-    }
 }

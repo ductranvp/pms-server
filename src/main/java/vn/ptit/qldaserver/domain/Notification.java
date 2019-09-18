@@ -27,7 +27,4 @@ public class Notification extends AuditEvent implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;
-
-    @OneToMany(mappedBy = "notification")
-    private Set<UserNotification> userNotifications;
 }

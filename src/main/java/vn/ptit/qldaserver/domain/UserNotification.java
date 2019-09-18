@@ -15,6 +15,7 @@ import java.io.Serializable;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class UserNotification implements Serializable {
+    public static final long serialVersionUID = 1L;
     @EmbeddedId
     UserNotificationKey id;
 
