@@ -1,6 +1,7 @@
 package vn.ptit.qldaserver.domain;
 
 import lombok.*;
+import org.hibernate.annotations.Where;
 import vn.ptit.qldaserver.domain.audit.AuditEvent;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = false)
+@Where(clause = "deleted=false")
 public class Category extends AuditEvent implements Serializable {
     public static final long serialVersionUID = 1L;
     @Id
@@ -25,11 +27,15 @@ public class Category extends AuditEvent implements Serializable {
 
     private int pos;
 
-    private boolean archived;
+    private boolean archived = false;
 
-    private boolean deleted;
+    private boolean deleted = false;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+
+    public Category(Long categoryId) {
+        this.id = categoryId;
+    }
 }

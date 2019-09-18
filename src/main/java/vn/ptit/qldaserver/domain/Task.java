@@ -2,6 +2,7 @@ package vn.ptit.qldaserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import org.springframework.lang.Nullable;
 import vn.ptit.qldaserver.domain.audit.AuditEvent;
 import vn.ptit.qldaserver.domain.enumeration.TaskPriority;
@@ -10,6 +11,7 @@ import vn.ptit.qldaserver.domain.enumeration.TaskStatus;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = false)
+@Where(clause = "deleted=false")
 public class Task extends AuditEvent implements Serializable {
     public static final long serialVersionUID = 1L;
     @Id
@@ -36,19 +39,19 @@ public class Task extends AuditEvent implements Serializable {
     @Enumerated(EnumType.STRING)
     private TaskPriority priority;
 
-    private Long estimateStartDate;
-    private Long estimateEndDate;
+    private Instant estimateStartDate;
+    private Instant estimateEndDate;
 
-    private Long startDate;
-    private Long endDate;
+    private Instant startDate;
+    private Instant endDate;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    private boolean overdue;
+    private boolean overdue = false;
 
     @JsonIgnore
-    private boolean deleted;
+    private boolean deleted = false;
 
     @Nullable
     @ManyToOne
@@ -63,7 +66,13 @@ public class Task extends AuditEvent implements Serializable {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToMany(mappedBy = "tasks")
+    @ManyToMany
+    @JoinTable(name = "user_task",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> users = new HashSet<>();
 
+    public Task(Long parentId) {
+        this.id = parentId;
+    }
 }

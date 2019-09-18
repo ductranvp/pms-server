@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.ptit.qldaserver.domain.Project;
 import vn.ptit.qldaserver.service.ProjectService;
 import vn.ptit.qldaserver.service.dto.core.ErrorEntity;
-import vn.ptit.qldaserver.service.dto.ProjectDto;
 
 import java.util.List;
 
@@ -21,13 +20,22 @@ public class ProjectResource {
     ProjectService projectService;
 
     @PostMapping("/projects")
-    public ResponseEntity<?> createProject(@RequestBody ProjectDto projectDto) {
-        log.info("REST request to save Project : {}", projectDto);
-        if (projectDto.getId() != null) {
+    public ResponseEntity<?> createProject(@RequestBody Project project) {
+        log.info("REST request to save Project : {}", project);
+        if (project.getId() != null) {
             return new ResponseEntity<>(ErrorEntity.badRequest("A new project cannot already have an ID"), HttpStatus.BAD_REQUEST);
         }
-        Project result = projectService.save(projectDto);
+        Project result = projectService.save(project);
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/projects")
+    public ResponseEntity<?> updateProject(@RequestBody Project project) {
+        log.info("REST request to update Project : {}", project);
+        if (project.getId() == null) {
+            return new ResponseEntity<>(ErrorEntity.badRequest("Project must have id"), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(projectService.save(project));
     }
 
     @GetMapping("/projects")
@@ -40,19 +48,7 @@ public class ProjectResource {
     @GetMapping("/projects/{id}")
     public ResponseEntity<?> getProject(@PathVariable Long id) {
         log.info("REST request to get Project : {}", id);
-        return projectService.findOne(id).map(
-                project -> ResponseEntity.ok().build()
-        ).orElse(new ResponseEntity<>(ErrorEntity.notFound("Project not found"), HttpStatus.NOT_FOUND));
-    }
-
-    @PutMapping("/projects")
-    public ResponseEntity<?> updateProject(@RequestBody ProjectDto projectDto) {
-        log.info("REST request to update Project : {}", projectDto);
-        if (projectDto.getId() == null) {
-            return new ResponseEntity<>(ErrorEntity.badRequest("Project must have id"), HttpStatus.BAD_REQUEST);
-        }
-        Project project = projectService.save(projectDto);
-        return ResponseEntity.ok(project);
+        return ResponseEntity.ok(projectService.findOne(id));
     }
 
     @DeleteMapping("/projects/{id}")

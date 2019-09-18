@@ -1,6 +1,11 @@
 package vn.ptit.qldaserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Where;
 import vn.ptit.qldaserver.domain.audit.AuditEvent;
 
 import javax.persistence.*;
@@ -16,6 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = false)
+@Where(clause = "deleted=false")
 public class Project extends AuditEvent implements Serializable {
     public static final long serialVersionUID = 1L;
     @Id
@@ -26,10 +32,17 @@ public class Project extends AuditEvent implements Serializable {
 
     private String description;
 
-    private boolean closed;
+    private boolean closed = false;
 
-    private boolean deleted;
+    private boolean deleted = false;
 
-    @ManyToMany(mappedBy = "projects")
+    @ManyToMany
+    @JoinTable(name = "user_project",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> users = new HashSet<>();
+
+    public Project(Long projectId) {
+        this.id = projectId;
+    }
 }

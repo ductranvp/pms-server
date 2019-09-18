@@ -1,6 +1,7 @@
 package vn.ptit.qldaserver.domain;
 
 import lombok.*;
+import org.hibernate.annotations.Where;
 import org.springframework.lang.Nullable;
 import vn.ptit.qldaserver.domain.audit.AuditEvent;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ToString
+@Where(clause = "deleted=false")
 public class Comment extends AuditEvent implements Serializable {
     public static final long serialVersionUID = 1L;
     @Id
@@ -24,7 +26,7 @@ public class Comment extends AuditEvent implements Serializable {
     @NotBlank
     private String content;
 
-    private boolean deleted;
+    private boolean deleted = false;
 
     @Nullable
     @OneToOne

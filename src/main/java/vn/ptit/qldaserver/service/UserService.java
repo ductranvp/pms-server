@@ -10,6 +10,7 @@ import vn.ptit.qldaserver.domain.User;
 import vn.ptit.qldaserver.domain.enumeration.AuthorityName;
 import vn.ptit.qldaserver.exception.AppException;
 import vn.ptit.qldaserver.repository.AuthorityRepository;
+import vn.ptit.qldaserver.repository.ProjectRepository;
 import vn.ptit.qldaserver.repository.UserRepository;
 import vn.ptit.qldaserver.security.SecurityUtils;
 import vn.ptit.qldaserver.service.dto.UserDto;
@@ -29,6 +30,9 @@ public class UserService {
 
     @Autowired
     AuthorityRepository authorityRepository;
+
+    @Autowired
+    ProjectRepository projectRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;

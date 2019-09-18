@@ -5,11 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ptit.qldaserver.domain.Project;
+import vn.ptit.qldaserver.domain.User;
+import vn.ptit.qldaserver.exception.AppException;
 import vn.ptit.qldaserver.repository.ProjectRepository;
-import vn.ptit.qldaserver.service.dto.ProjectDto;
+import vn.ptit.qldaserver.service.dto.UserDto;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 public class ProjectService {
@@ -18,26 +22,34 @@ public class ProjectService {
     @Autowired
     ProjectRepository projectRepository;
 
-    public Project save(ProjectDto projectDto) {
-        Project project = projectDto.toBean();
+    public Project save(Project project) {
         return projectRepository.save(project);
     }
 
     public void delete(Long id) {
-        projectRepository.deleteById(id);
-    }
-
-    public void close(Long id) {
-        Project project = projectRepository.findById(id).get();
-        project.setClosed(true);
-        projectRepository.save(project);
+        try {
+            Project project = projectRepository.findById(id).get();
+            project.setDeleted(true);
+            projectRepository.save(project);
+        } catch (NoSuchElementException e) {
+            throw new AppException("Project could not be found");
+        }
     }
 
     public List<Project> findAll() {
         return projectRepository.findAll();
     }
 
-    public Optional<Project> findOne(Long id) {
-        return projectRepository.findById(id);
+    public Project findOne(Long id) {
+        try {
+            return projectRepository.findById(id).get();
+        } catch (NoSuchElementException e) {
+            throw new AppException("Project could not be found");
+        }
+    }
+
+    public Set<User> getUsersByProjectId(Long id) {
+        Project project = projectRepository.findById(id).get();
+        return project.getUsers();
     }
 }

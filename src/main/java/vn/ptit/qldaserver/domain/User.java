@@ -1,5 +1,6 @@
 package vn.ptit.qldaserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
@@ -69,29 +70,9 @@ public class User extends AuditEvent implements Serializable {
     @Column(name = "receive_mail")
     private boolean receiveMail = true;
 
-    @JsonIgnore
     @ManyToMany
     @JoinTable(name = "user_authority",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "authority_id"))
     private Set<Authority> authorities = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(name = "user_project",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "project_id"))
-    private Set<Project> projects = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(name = "user_task",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "task_id"))
-    private Set<Task> tasks = new HashSet<>();
-
-    @OneToMany(mappedBy = "user")
-    private Set<UserInvitation> userInvitations;
-
-    @OneToMany(mappedBy = "user")
-    private Set<UserNotification> userNotifications;
-
 }
