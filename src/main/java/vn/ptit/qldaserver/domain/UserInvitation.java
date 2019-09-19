@@ -33,4 +33,8 @@ public class UserInvitation implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private InvitationStatus status = InvitationStatus.NO_ACTION;
+
+    public UserInvitation(UserInvitationKey userInvitationKey) {
+        this.id = userInvitationKey;
+    }
 }

@@ -147,9 +147,4 @@ public class AccountResource {
                 .map(user -> new ResponseEntity<String>(HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
-
-    @GetMapping("/account/init")
-    public void initAccount() {
-        userService.initAccount();
-    }
 }

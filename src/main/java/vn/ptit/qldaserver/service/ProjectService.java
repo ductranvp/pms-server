@@ -36,6 +36,10 @@ public class ProjectService {
         }
     }
 
+    public void deleteOnDatabase(Long id) {
+        projectRepository.deleteById(id);
+    }
+
     public List<Project> findAll() {
         return projectRepository.findAll();
     }

@@ -156,7 +156,11 @@ public class UserService {
 
     public User getCurrentUser() {
         log.info("Querying current user info");
-        return userRepository.findByUsername(SecurityUtils.getCurrentUserLogin()).orElse(null);
+        try {
+            return userRepository.findByUsername(SecurityUtils.getCurrentUserLogin()).get();
+        } catch (Exception e) {
+            throw new AppException("Current user not found");
+        }
     }
 
     public void deleteUser(String username) {
@@ -164,24 +168,6 @@ public class UserService {
             userRepository.delete(user);
             log.debug("Deleted User: {}", user);
         });
-    }
-
-    public void initAccount() {
-        if (userRepository.findByUsername("admin").isPresent() || userRepository.findByEmail("admin@gmail.com").isPresent()) {
-            return;
-        }
-        User admin = new User();
-        admin.setId(1L);
-        admin.setUsername("admin");
-        admin.setPassword(passwordEncoder.encode("admin"));
-        admin.setEmail("admin@gmail.com");
-        admin.setActivated(true);
-        List<Authority> authorities = authorityRepository.findAll();
-        Set<Authority> authoritySet = new HashSet<>(authorities);
-        admin.setAuthorities(authoritySet);
-        admin.setFirstName("Admin");
-        admin.setLastName("Admin");
-        userRepository.save(admin);
     }
 
     public List<String> getAuthorities() {

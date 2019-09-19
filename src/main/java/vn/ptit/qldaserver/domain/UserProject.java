@@ -30,4 +30,8 @@ public class UserProject implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private ProjectRole role = ProjectRole.ROLE_MEMBER;
+
+    public UserProject(UserProjectKey userProjectKey) {
+        this.id = userProjectKey;
+    }
 }
