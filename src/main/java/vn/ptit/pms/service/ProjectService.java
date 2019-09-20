@@ -5,6 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ptit.pms.domain.Project;
+import vn.ptit.pms.domain.User;
+import vn.ptit.pms.domain.UserProject;
+import vn.ptit.pms.domain.enumeration.ProjectRole;
+import vn.ptit.pms.domain.key.UserProjectKey;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.ProjectRepository;
 
@@ -18,8 +22,19 @@ public class ProjectService {
     @Autowired
     ProjectRepository projectRepository;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    UserProjectService userProjectService;
+
     public Project save(Project project) {
-        return projectRepository.save(project);
+        Project savedProject = projectRepository.save(project);
+        User user = userService.getCurrentUser();
+        UserProject userProject = new UserProject(new UserProjectKey(user.getId(), savedProject.getId()));
+        userProject.setRole(ProjectRole.ROLE_MANAGER);
+        userProjectService.save(userProject);
+        return savedProject;
     }
 
     public void delete(Long id) {

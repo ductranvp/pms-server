@@ -20,17 +20,15 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     @Autowired
     private JwtTokenProvider tokenProvider;
-
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
     /*
-    * Same contract as for doFilter, but guaranteed to be just invoked once per request within a single request thread.
-    * */
+     * Same contract as for doFilter, but guaranteed to be just invoked once per request within a single request thread.
+     * */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {

@@ -39,12 +39,7 @@ public class ProjectResource {
         if (project.getId() != null) {
             return new ResponseEntity<>(ErrorEntity.badRequest("A new project cannot already have an ID"), HttpStatus.BAD_REQUEST);
         }
-        Project savedProject = projectService.save(project);
-        User user = userService.getCurrentUser();
-        UserProject userProject = new UserProject(new UserProjectKey(user.getId(), savedProject.getId()));
-        userProject.setRole(ProjectRole.ROLE_MANAGER);
-        userProjectService.save(userProject);
-        return ResponseEntity.ok(savedProject);
+        return ResponseEntity.ok(projectService.save(project));
     }
 
     @PutMapping("/projects")
