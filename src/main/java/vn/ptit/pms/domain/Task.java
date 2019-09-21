@@ -35,7 +35,7 @@ public class Task extends AuditEvent implements Serializable {
     private int pos;
 
     @Enumerated(EnumType.STRING)
-    private TaskPriority priority;
+    private TaskPriority priority = TaskPriority.LOW;
 
     private Instant estimateStartDate;
     private Instant estimateEndDate;

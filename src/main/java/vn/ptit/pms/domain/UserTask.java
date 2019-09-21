@@ -27,4 +27,8 @@ public class UserTask implements Serializable {
     @MapsId("task_id")
     @JoinColumn(name = "task_id")
     private Task task;
+
+    public UserTask(UserTaskKey userTaskKey) {
+        this.id = userTaskKey;
+    }
 }

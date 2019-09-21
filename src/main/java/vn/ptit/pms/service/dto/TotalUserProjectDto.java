@@ -1,4 +1,4 @@
-package vn.ptit.pms.service;
+package vn.ptit.pms.service.dto;
 
 import vn.ptit.pms.domain.Project;
 

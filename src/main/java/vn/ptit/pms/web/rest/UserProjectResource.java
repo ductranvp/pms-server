@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.ptit.pms.service.ProjectService;
-import vn.ptit.pms.service.TotalUserProjectDto;
+import vn.ptit.pms.service.dto.TotalUserProjectDto;
 import vn.ptit.pms.service.UserProjectService;
 import vn.ptit.pms.service.UserService;
 import vn.ptit.pms.service.dto.UserProjectDto;

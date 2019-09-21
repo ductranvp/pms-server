@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 import vn.ptit.pms.domain.Project;
-import vn.ptit.pms.domain.User;
-import vn.ptit.pms.domain.UserProject;
-import vn.ptit.pms.domain.enumeration.ProjectRole;
-import vn.ptit.pms.domain.key.UserProjectKey;
+import vn.ptit.pms.security.UserPrincipal;
+import vn.ptit.pms.security.annotation.CurrentUser;
 import vn.ptit.pms.service.ProjectService;
 import vn.ptit.pms.service.UserProjectService;
 import vn.ptit.pms.service.UserService;
@@ -34,21 +34,21 @@ public class ProjectResource {
 
     @PostMapping("/projects")
     @Transactional
-    public ResponseEntity<?> createProject(@RequestBody Project project) {
+    public ResponseEntity<?> createProject(@RequestBody Project project, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to save Project : {}", project);
         if (project.getId() != null) {
             return new ResponseEntity<>(ErrorEntity.badRequest("A new project cannot already have an ID"), HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(projectService.save(project));
+        return ResponseEntity.ok(projectService.save(project, userPrincipal));
     }
 
     @PutMapping("/projects")
-    public ResponseEntity<?> updateProject(@RequestBody Project project) {
+    public ResponseEntity<?> updateProject(@RequestBody Project project, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to update Project : {}", project);
         if (project.getId() == null) {
             return new ResponseEntity<>(ErrorEntity.badRequest("Project must have id"), HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(projectService.save(project));
+        return ResponseEntity.ok(projectService.save(project, userPrincipal));
     }
 
     @GetMapping("/projects")
