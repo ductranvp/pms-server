@@ -23,6 +23,8 @@ public class Attachment extends AuditEvent implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     @NotBlank
     private String url;
 
@@ -30,8 +32,6 @@ public class Attachment extends AuditEvent implements Serializable {
 
     private boolean deleted = false;
 
-    @Nullable
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
+    @Column(name = "task_id", nullable = true)
+    private Long taskId;
 }

@@ -59,4 +59,8 @@ public class Task extends AuditEvent implements Serializable {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    public Task(Long taskId) {
+        this.id = taskId;
+    }
 }
