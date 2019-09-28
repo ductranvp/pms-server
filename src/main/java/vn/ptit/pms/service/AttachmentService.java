@@ -26,12 +26,13 @@ public class AttachmentService {
     @Autowired
     AttachmentRepository attachmentRepository;
 
-    public Attachment save(Long taskId, MultipartFile file) {
+    public Attachment save(Long taskId, Long commentId, MultipartFile file) {
         String attachmentDir = "http://localhost:" + serverPort + "/attachment/";
         Attachment attachment = new Attachment();
         attachment.setName(file.getOriginalFilename());
         attachment.setType(file.getContentType());
         attachment.setTaskId(taskId);
+        attachment.setCommentId(commentId);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmsszz");
         String fileName = sdf.format(new Date()) + getExtensionFile(file.getOriginalFilename());
         attachment.setUrl(attachmentDir + fileName);
@@ -54,6 +55,14 @@ public class AttachmentService {
         } catch (Exception e) {
             throw new AppException(ENTITY_NAME + " " + id + " could not be found");
         }
+    }
+
+    public List<Attachment> findByTaskId(Long taskId){
+        return attachmentRepository.findByTaskId(taskId);
+    }
+
+    public List<Attachment> findByCommentId(Long commentId){
+        return attachmentRepository.findByCommentId(commentId);
     }
 
     public List<Attachment> findAll() {

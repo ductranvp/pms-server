@@ -1,5 +1,6 @@
 package vn.ptit.pms.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Where;
 import vn.ptit.pms.domain.audit.AuditEvent;

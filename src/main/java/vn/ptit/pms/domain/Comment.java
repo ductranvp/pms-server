@@ -1,8 +1,8 @@
 package vn.ptit.pms.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Where;
-import org.springframework.lang.Nullable;
 import vn.ptit.pms.domain.audit.AuditEvent;
 
 import javax.persistence.*;
@@ -26,14 +26,11 @@ public class Comment extends AuditEvent implements Serializable {
     @NotBlank
     private String content;
 
+    private boolean edited = false;
+
+    @JsonIgnore
     private boolean deleted = false;
 
-    @Nullable
-    @OneToOne
-    @JoinColumn(name = "attachment_id")
-    private Attachment attachment;
-
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
+    @Column(name = "task_id", nullable = false)
+    private Long taskId;
 }
