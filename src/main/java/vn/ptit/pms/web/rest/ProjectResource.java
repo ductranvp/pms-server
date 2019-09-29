@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 import vn.ptit.pms.domain.Project;
@@ -20,9 +19,10 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/project")
 public class ProjectResource {
     private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
+    private final String ENTITY_NAME = "Project";
     @Autowired
     ProjectService projectService;
 
@@ -32,41 +32,40 @@ public class ProjectResource {
     @Autowired
     UserProjectService userProjectService;
 
-    @PostMapping("/projects")
+    @PostMapping("/create")
     @Transactional
-    public ResponseEntity<?> createProject(@RequestBody Project project, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
-        log.info("REST request to save Project : {}", project);
+    public ResponseEntity<?> create(@RequestBody Project project, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        log.info("REST request to create {}", ENTITY_NAME);
         if (project.getId() != null) {
-            return new ResponseEntity<>(ErrorEntity.badRequest("A new project cannot already have an ID"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ErrorEntity.badRequest("A new " + ENTITY_NAME + " cannot already have an ID"), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(projectService.save(project, userPrincipal));
     }
 
-    @PutMapping("/projects")
-    public ResponseEntity<?> updateProject(@RequestBody Project project, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
-        log.info("REST request to update Project : {}", project);
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@RequestBody Project project, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        log.info("REST request to update {} : {}", ENTITY_NAME, project);
         if (project.getId() == null) {
-            return new ResponseEntity<>(ErrorEntity.badRequest("Project must have id"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ErrorEntity.badRequest(ENTITY_NAME + " must have id"), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(projectService.save(project, userPrincipal));
     }
 
-    @GetMapping("/projects")
-    public ResponseEntity<?> getAllProjects() {
-        log.info("REST request to get all Projects");
-        List<Project> projects = projectService.findAll();
-        return ResponseEntity.ok(projects);
+    @GetMapping("/all")
+    public ResponseEntity<List<Project>> getAll() {
+        log.info("REST request to get all {}", ENTITY_NAME);
+        return ResponseEntity.ok(projectService.getAll());
     }
 
-    @GetMapping("/projects/{id}")
-    public ResponseEntity<?> getProject(@PathVariable Long id) {
-        log.info("REST request to get Project : {}", id);
-        return ResponseEntity.ok(projectService.findOne(id));
+    @GetMapping("/get/{id}")
+    public ResponseEntity<?> get(@PathVariable Long id) {
+        log.info("REST request to get {} : {}", ENTITY_NAME, id);
+        return ResponseEntity.ok(projectService.getOneById(id));
     }
 
-    @DeleteMapping("/projects/{id}")
-    public ResponseEntity<?> deleteProject(@PathVariable Long id) {
-        log.info("REST request to delete Project : {}", id);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        log.info("REST request to delete {} : {}", ENTITY_NAME, id);
         projectService.delete(id);
         return ResponseEntity.ok().build();
     }

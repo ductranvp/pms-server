@@ -27,7 +27,6 @@ public class Activity extends AuditEvent implements Serializable {
     @Enumerated(EnumType.STRING)
     private ActivityType type;
 
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
+    @Column(name = "task_id", nullable = false)
+    private Long taskId;
 }

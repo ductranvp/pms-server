@@ -49,7 +49,7 @@ public class CommentService {
             attachmentService.save(null, dto.getId(), file);
         }
         dto.setRemoveAttachments(new ArrayList<>());
-        dto.setAttachments(attachmentService.findByCommentId(dto.getId()));
+        dto.setAttachments(attachmentService.getByCommentId(dto.getId()));
         return dto;
     }
 

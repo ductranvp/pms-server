@@ -50,7 +50,7 @@ public class UserInvitationService {
         return userInvitationRepository.save(invitation);
     }
 
-    public UserInvitation findOne(UserInvitationKey id) {
+    public UserInvitation getOneById(UserInvitationKey id) {
         try {
             return userInvitationRepository.findById(id).get();
         } catch (Exception e) {
@@ -58,15 +58,15 @@ public class UserInvitationService {
         }
     }
 
-    public List<UserInvitation> findByUserId(Long userId) {
+    public List<UserInvitation> getByUserId(Long userId) {
         return userInvitationRepository.findByIdUserId(userId);
     }
 
-    public List<UserInvitation> findByInvitationId(Long invitationId) {
+    public List<UserInvitation> getByInvitationId(Long invitationId) {
         return userInvitationRepository.findByIdInvitationId(invitationId);
     }
 
-    public List<UserInvitation> findAll() {
+    public List<UserInvitation> getAll() {
         return userInvitationRepository.findAll();
     }
 
@@ -76,7 +76,7 @@ public class UserInvitationService {
 
     public void responseToInvitation(InvitationResponseDto dto) {
         User currentUser = userService.getCurrentUser();
-        UserInvitation userInvitation = userInvitationService.findOne(new UserInvitationKey(currentUser.getId(), dto.getInvitationId()));
+        UserInvitation userInvitation = userInvitationService.getOneById(new UserInvitationKey(currentUser.getId(), dto.getInvitationId()));
         if (userInvitation.getStatus().equals(InvitationStatus.NO_ACTION)) {
             if (dto.isAccept()) {
                 userInvitation.setStatus(InvitationStatus.ACCEPTED);
@@ -94,7 +94,7 @@ public class UserInvitationService {
 
     public void sendInvitationRequest(InvitationRequestDto dto) {
         User currentUser = userService.getCurrentUser();
-        UserProject userProject = userProjectService.findOne(new UserProjectKey(currentUser.getId(), dto.getProjectId()));
+        UserProject userProject = userProjectService.getOneById(new UserProjectKey(currentUser.getId(), dto.getProjectId()));
         /*Check current user is Project manager or not */
         if (userProject.getRole().equals(ProjectRole.ROLE_MANAGER)) {
             Invitation invitation = new Invitation(dto.getContent(), dto.getProjectId());
@@ -119,8 +119,8 @@ public class UserInvitationService {
         }
     }
 
-    public List<UserInvitationDto> findByCurrentUser() {
-        List<UserInvitation> list = findByUserId(userService.getCurrentUser().getId());
+    public List<UserInvitationDto> getByCurrentUser() {
+        List<UserInvitation> list = getByUserId(userService.getCurrentUser().getId());
         List<UserInvitationDto> result = new ArrayList<>();
         list.forEach(userInvitation -> {
             if (userInvitation.getStatus().equals(InvitationStatus.NO_ACTION)) {

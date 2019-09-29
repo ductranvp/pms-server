@@ -12,7 +12,7 @@ public class InvitationRequestDto {
     private String content;
     private Set<String> listEmail;
 
-    public Invitation toBean(){
+    public Invitation toBean() {
         Invitation invitation = new Invitation();
         invitation.setContent(content);
         invitation.setProject(new Project(projectId));

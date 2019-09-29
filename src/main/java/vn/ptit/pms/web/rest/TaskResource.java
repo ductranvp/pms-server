@@ -12,7 +12,7 @@ import vn.ptit.pms.service.TaskService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/task")
 public class TaskResource {
     private final Logger log = LoggerFactory.getLogger(TaskResource.class);
     private final String ENTITY_NAME = "Task";
@@ -20,39 +20,39 @@ public class TaskResource {
     @Autowired
     private TaskService taskService;
 
-    @PostMapping("/tasks")
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
-        log.info("REST request to save {}: {}", ENTITY_NAME, task);
+    @PostMapping("/create")
+    public ResponseEntity<Task> create(@RequestBody Task task) {
+        log.info("REST request to create {}: {}", ENTITY_NAME, task);
         if (task.getId() != null) {
-            throw new BadRequestException("A new task cannot already have an ID");
+            throw new BadRequestException("A new " + ENTITY_NAME + " cannot already have an ID");
         }
         return ResponseEntity.ok(taskService.save(task));
     }
 
-    @GetMapping("/tasks")
-    public ResponseEntity<List<Task>> getAllTask() {
+    @GetMapping("/list")
+    public ResponseEntity<List<Task>> list() {
         log.info("REST request to get all {}", ENTITY_NAME);
-        return ResponseEntity.ok(taskService.findAll());
+        return ResponseEntity.ok(taskService.getAll());
     }
 
-    @GetMapping("/tasks/{id}")
-    public ResponseEntity<Task> getTask(@PathVariable Long id) {
+    @GetMapping("/get/{id}")
+    public ResponseEntity<Task> get(@PathVariable Long id) {
         log.info("REST request to get {}: {}", ENTITY_NAME, id);
-        return ResponseEntity.ok(taskService.findOne(id));
+        return ResponseEntity.ok(taskService.getById(id));
     }
 
-    @PutMapping("/tasks")
-    public ResponseEntity<Task> updateTask(@RequestBody Task task) {
+    @PutMapping("/update")
+    public ResponseEntity<Task> update(@RequestBody Task task) {
         log.info("REST request to update {}: {}", ENTITY_NAME, task);
         if (task.getId() == null) {
-            throw new BadRequestException("Task must have an ID");
+            throw new BadRequestException(ENTITY_NAME + " must have an ID");
         }
         return ResponseEntity.ok(taskService.save(task));
     }
 
-    @DeleteMapping("/tasks/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        log.info("REST request to save {}: {}", ENTITY_NAME, id);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.info("REST request to delete {}: {}", ENTITY_NAME, id);
         taskService.delete(id);
         return ResponseEntity.ok().build();
     }

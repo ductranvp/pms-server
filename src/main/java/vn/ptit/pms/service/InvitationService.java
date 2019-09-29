@@ -19,7 +19,7 @@ public class InvitationService {
         return invitationRepository.save(invitation);
     }
 
-    public Invitation findOne(Long id) {
+    public Invitation getOneById(Long id) {
         try {
             return invitationRepository.findById(id).get();
         } catch (Exception e) {
@@ -27,7 +27,7 @@ public class InvitationService {
         }
     }
 
-    public List<Invitation> findAll() {
+    public List<Invitation> getAll() {
         return invitationRepository.findAll();
     }
 

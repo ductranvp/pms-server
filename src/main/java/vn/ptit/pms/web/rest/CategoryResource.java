@@ -13,7 +13,7 @@ import vn.ptit.pms.service.dto.core.ErrorEntity;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/category")
 public class CategoryResource {
     private final Logger log = LoggerFactory.getLogger(CategoryResource.class);
     private final String ENTITY_NAME = "Category";
@@ -21,38 +21,38 @@ public class CategoryResource {
     @Autowired
     private CategoryService categoryService;
 
-    @PostMapping("/category")
-    public ResponseEntity<?> createCategory(@RequestBody Category category){
-        log.info("REST request to save {}", ENTITY_NAME);
-        if (category.getId() != null){
-            return new ResponseEntity<>(ErrorEntity.badRequest("A new category cannot already have an ID"), HttpStatus.BAD_REQUEST);
+    @PostMapping("/create")
+    public ResponseEntity create(@RequestBody Category category) {
+        log.info("REST request to create {}", ENTITY_NAME);
+        if (category.getId() != null) {
+            return new ResponseEntity<>(ErrorEntity.badRequest("A new " + ENTITY_NAME + " cannot already have an ID"), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(categoryService.save(category));
     }
 
-    @PutMapping("/category")
-    public ResponseEntity<?> updateCategory(@RequestBody Category category){
-        log.info("REST request to save {}", ENTITY_NAME);
-        if (category.getId() == null){
-            return new ResponseEntity<>(ErrorEntity.badRequest("Category must have and ID"), HttpStatus.BAD_REQUEST);
+    @PutMapping("/update")
+    public ResponseEntity update(@RequestBody Category category) {
+        log.info("REST request to update {}", ENTITY_NAME);
+        if (category.getId() == null) {
+            return new ResponseEntity<>(ErrorEntity.badRequest(ENTITY_NAME + " must have and ID"), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(categoryService.save(category));
     }
 
-    @GetMapping("/category")
-    public ResponseEntity<List<Category>> getAllCategories() {
+    @GetMapping("/all")
+    public ResponseEntity<List<Category>> getAll() {
         log.info("REST request to get all {}", ENTITY_NAME);
-        return ResponseEntity.ok(categoryService.findAll());
+        return ResponseEntity.ok(categoryService.getAll());
     }
 
-    @GetMapping("/category/{id}")
-    public ResponseEntity<Category> getCategory(@PathVariable Long id) {
+    @GetMapping("/get/{id}")
+    public ResponseEntity<Category> get(@PathVariable Long id) {
         log.info("REST request to get {}", ENTITY_NAME);
-        return ResponseEntity.ok(categoryService.findOne(id));
+        return ResponseEntity.ok(categoryService.getOneById(id));
     }
 
-    @DeleteMapping("/category/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("REST request to delete {}", ENTITY_NAME);
         categoryService.delete(id);
         return ResponseEntity.ok().build();

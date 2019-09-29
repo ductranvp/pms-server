@@ -46,11 +46,11 @@ public class ProjectService {
         }
     }
 
-    public List<Project> findAll() {
+    public List<Project> getAll() {
         return projectRepository.findAll();
     }
 
-    public Project findOne(Long id) {
+    public Project getOneById(Long id) {
         try {
             return projectRepository.findById(id).get();
         } catch (NoSuchElementException e) {

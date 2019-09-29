@@ -12,31 +12,31 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user-task")
 public class UserTaskResource {
     @Autowired
     private UserTaskService userTaskService;
 
-    @PostMapping("/user-task/add")
+    @PostMapping("/add")
     @Transactional
     public ResponseEntity<Void> addTaskAssignment(@RequestBody AssignTaskDto dto) {
         userTaskService.save(dto);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/user-task/remove")
+    @PostMapping("/remove")
     @Transactional
     public ResponseEntity<Void> removeTaskAssignment(@RequestBody AssignTaskDto dto) {
         userTaskService.delete(dto);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/user-task/get-tasks/{userId}")
+    @GetMapping("/get-tasks/{userId}")
     public ResponseEntity<List<Task>> getListTaskOfUser(@PathVariable Long userId) {
         return ResponseEntity.ok(userTaskService.getListTaskOfUser(userId));
     }
 
-    @GetMapping("/user-task/get-users/{taskId}")
+    @GetMapping("/get-users/{taskId}")
     public ResponseEntity<List<User>> getListUserOfTask(@PathVariable Long taskId) {
         return ResponseEntity.ok(userTaskService.getListUserOfTask(taskId));
     }

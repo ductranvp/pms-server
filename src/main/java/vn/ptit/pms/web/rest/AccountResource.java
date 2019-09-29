@@ -26,9 +26,10 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/account")
 public class AccountResource {
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
+    private final String ENTITY_NAME = "Account";
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -50,9 +51,9 @@ public class AccountResource {
     @Autowired
     MailService mailService;
 
-    @PostMapping("account/register")
+    @PostMapping("/register")
     public ResponseEntity<?> registerAccount(@Valid @RequestBody SignUpDto signUpDto) {
-        log.info("REST request to register Account: {}", signUpDto.getUsername());
+        log.info("REST request to register {}: {}", ENTITY_NAME, signUpDto.getUsername());
         if (userRepository.existsByUsername(signUpDto.getUsername().toLowerCase())) {
             return new ResponseEntity<>(ErrorEntity.badRequest("Username is already taken"),
                     HttpStatus.BAD_REQUEST);
@@ -62,22 +63,22 @@ public class AccountResource {
                     HttpStatus.BAD_REQUEST);
         }
         User user = userService.registerUser(signUpDto);
-        log.info("User is created. Sending activation key to email: {}", user.getEmail());
+        log.info("{} is created. Sending activation key to email: {}", ENTITY_NAME, user.getEmail());
         mailService.sendEmailFromTemplate(user, "activationEmail", "email.activation.title");
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("account/activate")
+    @PostMapping("/activate")
     public ResponseEntity<String> activateAccount(@RequestBody String key) {
-        log.info("REST request to activate Account with key: {}", key);
+        log.info("REST request to activate {} with key: {}", ENTITY_NAME, key);
         return userService.activateRegistration(key)
                 .map(user -> new ResponseEntity<String>(HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    @PostMapping("account/authenticate")
+    @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@Valid @RequestBody LoginDto loginDto) {
-        log.info("REST request to authenticate for Account: {}", loginDto.getUsername());
+        log.info("REST request to authenticate for {}: {}", ENTITY_NAME, loginDto.getUsername());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getUsername(),
@@ -89,17 +90,17 @@ public class AccountResource {
         return ResponseEntity.ok(new JwtTokenDto(jwt));
     }
 
-    @GetMapping("/account/current")
+    @GetMapping("/current")
     public ResponseEntity<UserDto> getCurrentAccount() {
-        log.info("REST request to get current Account");
+        log.info("REST request to get current {}", ENTITY_NAME);
         return Optional.ofNullable(userService.getCurrentUser())
                 .map(user -> new ResponseEntity<>(new UserDto(user), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    @PutMapping("/account/update")
-    public ResponseEntity<?> updateAccount(@RequestBody UserDto userDto) {
-        log.info("REST request to update current Account");
+    @PutMapping("/update")
+    public ResponseEntity updateAccount(@RequestBody UserDto userDto) {
+        log.info("REST request to update current {}", ENTITY_NAME);
         final String username = SecurityUtils.getCurrentUserLogin();
         if (username == null)
             return new ResponseEntity<>(ErrorEntity.notFound("Current user could not be found"), HttpStatus.NOT_FOUND);
@@ -116,9 +117,9 @@ public class AccountResource {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping("/account/change_password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
-        log.info("REST request to change password for Account: {}", SecurityUtils.getCurrentUserLogin());
+    @PostMapping("/change_password")
+    public ResponseEntity changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
+        log.info("REST request to change password for {}: {}", ENTITY_NAME, SecurityUtils.getCurrentUserLogin());
         Optional<User> user = userRepository.findByUsername(SecurityUtils.getCurrentUserLogin());
         if (user.isPresent()) {
             if (passwordEncoder.matches(changePasswordDto.getOldPassword(), user.get().getPassword())) {
@@ -134,15 +135,15 @@ public class AccountResource {
         }
     }
 
-    @PostMapping("/account/reset_password/request")
-    public ResponseEntity<?> requestResetPassword(@RequestParam(value = "email") String email) {
+    @PostMapping("/reset_password/request")
+    public ResponseEntity requestResetPassword(@RequestBody String email) {
         return userService.requestPasswordReset(email)
                 .map(user -> new ResponseEntity<String>(HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    @PostMapping("/account/reset_password/finish")
-    public ResponseEntity<?> finishResetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
+    @PostMapping("/reset_password/finish")
+    public ResponseEntity finishResetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
         return userService.completePasswordReset(resetPasswordDto.getNewPassword(), resetPasswordDto.getKey())
                 .map(user -> new ResponseEntity<String>(HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));

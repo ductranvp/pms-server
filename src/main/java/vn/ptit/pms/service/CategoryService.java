@@ -18,7 +18,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public Category findOne(Long id) {
+    public Category getOneById(Long id) {
         try {
             return categoryRepository.findById(id).get();
         } catch (NoSuchElementException e) {
@@ -26,7 +26,7 @@ public class CategoryService {
         }
     }
 
-    public List<Category> findAll() {
+    public List<Category> getAll() {
         return categoryRepository.findAll();
     }
 

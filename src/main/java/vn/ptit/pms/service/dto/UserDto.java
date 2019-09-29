@@ -1,8 +1,6 @@
 package vn.ptit.pms.service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import vn.ptit.pms.domain.User;
 
 import java.util.Set;
@@ -11,6 +9,8 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class UserDto {
     private Long id;
     private String username;

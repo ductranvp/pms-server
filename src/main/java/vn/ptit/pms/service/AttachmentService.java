@@ -12,19 +12,17 @@ import vn.ptit.pms.util.CommonConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 @Service
 public class AttachmentService {
     private final String ENTITY_NAME = "Attachment";
+    @Autowired
+    AttachmentRepository attachmentRepository;
 
     @Value("${server.port}")
     private Long serverPort;
-
-    @Autowired
-    AttachmentRepository attachmentRepository;
 
     public Attachment save(Long taskId, Long commentId, MultipartFile file) {
         String attachmentDir = "http://localhost:" + serverPort + "/attachment/";
@@ -33,8 +31,7 @@ public class AttachmentService {
         attachment.setType(file.getContentType());
         attachment.setTaskId(taskId);
         attachment.setCommentId(commentId);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmsszz");
-        String fileName = sdf.format(new Date()) + getExtensionFile(file.getOriginalFilename());
+        String fileName = (new Date()).getTime() + getExtensionFile(file.getOriginalFilename());
         attachment.setUrl(attachmentDir + fileName);
         try {
             Files.createDirectories(Paths.get(CommonConstants.SAVED_ATTACHMENT_PATH));
@@ -49,7 +46,7 @@ public class AttachmentService {
         return fileName.substring(fileName.lastIndexOf('.'));
     }
 
-    public Attachment findOne(Long id) {
+    public Attachment getOneById(Long id) {
         try {
             return attachmentRepository.findById(id).get();
         } catch (Exception e) {
@@ -57,15 +54,15 @@ public class AttachmentService {
         }
     }
 
-    public List<Attachment> findByTaskId(Long taskId){
+    public List<Attachment> getByTaskId(Long taskId) {
         return attachmentRepository.findByTaskId(taskId);
     }
 
-    public List<Attachment> findByCommentId(Long commentId){
+    public List<Attachment> getByCommentId(Long commentId) {
         return attachmentRepository.findByCommentId(commentId);
     }
 
-    public List<Attachment> findAll() {
+    public List<Attachment> getAll() {
         return attachmentRepository.findAll();
     }
 

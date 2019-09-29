@@ -29,7 +29,7 @@ public class UserProjectService {
         return userProjectRepository.save(entity);
     }
 
-    public UserProject findOne(UserProjectKey id) {
+    public UserProject getOneById(UserProjectKey id) {
         try {
             return userProjectRepository.findById(id).get();
         } catch (Exception e) {
@@ -37,15 +37,15 @@ public class UserProjectService {
         }
     }
 
-    public List<UserProject> findByUserId(Long userId) {
+    public List<UserProject> getByUserId(Long userId) {
         return userProjectRepository.findByIdUserId(userId);
     }
 
-    public List<UserProject> findByProjectId(Long id) {
-        return userProjectRepository.findByIdProjectId(id);
+    public List<UserProject> getByProjectId(Long projectId) {
+        return userProjectRepository.findByIdProjectId(projectId);
     }
 
-    public List<UserProject> findAll() {
+    public List<UserProject> getAll() {
         return userProjectRepository.findAll();
     }
 
@@ -59,8 +59,8 @@ public class UserProjectService {
         userProjectRepository.save(userProject);
     }
 
-    public List<UserProjectDto> getUsersInProject(Long id) {
-        List<UserProject> list = findByProjectId(id);
+    public List<UserProjectDto> getUserProjectByProjectId(Long projectId) {
+        List<UserProject> list = getByProjectId(projectId);
         List<UserProjectDto> users = new ArrayList<>();
         list.forEach(userProject -> {
             UserProjectDto dto = new UserProjectDto();
@@ -71,8 +71,8 @@ public class UserProjectService {
         return users;
     }
 
-    public List<Project> getCurrentUserProject() {
-        List<UserProject> list = findByUserId(userService.getCurrentUser().getId());
+    public List<Project> getProjectByCurrentUser() {
+        List<UserProject> list = getByUserId(userService.getCurrentUser().getId());
         List<Project> projects = new ArrayList<>();
         list.forEach(userProject -> {
             projects.add(userProject.getProject());
@@ -80,8 +80,8 @@ public class UserProjectService {
         return projects;
     }
 
-    public List<Project> getUserProjectWithRoleManager() {
-        List<UserProject> list = findByUserId(userService.getCurrentUser().getId());
+    public List<Project> getProjectByCurrentUserWithRoleManager() {
+        List<UserProject> list = getByUserId(userService.getCurrentUser().getId());
         List<Project> projects = new ArrayList<>();
         list.forEach(userProject -> {
             if (userProject.getRole().equals(ProjectRole.ROLE_MANAGER)) {
@@ -91,8 +91,8 @@ public class UserProjectService {
         return projects;
     }
 
-    public List<Project> getUserProjectWithRoleMember() {
-        List<UserProject> list = findByUserId(userService.getCurrentUser().getId());
+    public List<Project> getProjectByCurrentUserWithRoleMember() {
+        List<UserProject> list = getByUserId(userService.getCurrentUser().getId());
         List<Project> projects = new ArrayList<>();
         list.forEach(userProject -> {
             if (userProject.getRole().equals(ProjectRole.ROLE_MEMBER)) {
@@ -102,13 +102,13 @@ public class UserProjectService {
         return projects;
     }
 
-    public List<Project> getUserClosedProject() {
+    public List<Project> getByCloseStatus() {
         return null;
     }
 
     public List<Project> getProjectByUsername(String username) {
-        List<UserProject> currentUserProject = findByUserId(userService.getCurrentUser().getId());
-        List<UserProject> queriedUserProject = findByUserId(userRepository.findByUsername(username).get().getId());
+        List<UserProject> currentUserProject = getByUserId(userService.getCurrentUser().getId());
+        List<UserProject> queriedUserProject = getByUserId(userRepository.findByUsername(username).get().getId());
         List<Project> projects = new ArrayList<>();
 
         for (int i = 0; i < currentUserProject.size(); i++) {
@@ -121,9 +121,9 @@ public class UserProjectService {
         return projects;
     }
 
-    public TotalUserProjectDto getCurrentUserAllProject() {
+    public TotalUserProjectDto getOverviewByCurrentUser() {
         TotalUserProjectDto result = new TotalUserProjectDto();
-        List<UserProject> list = findByUserId(userService.getCurrentUser().getId());
+        List<UserProject> list = getByUserId(userService.getCurrentUser().getId());
         List<Project> all = new ArrayList<>();
         List<Project> managing = new ArrayList<>();
         List<Project> member = new ArrayList<>();

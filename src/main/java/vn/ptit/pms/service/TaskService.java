@@ -16,11 +16,10 @@ public class TaskService {
     TaskRepository taskRepository;
 
     public Task save(Task task) {
-
         return taskRepository.save(task);
     }
 
-    public Task findOne(Long id) {
+    public Task getById(Long id) {
         try {
             return taskRepository.findById(id).get();
         } catch (Exception e) {
@@ -28,7 +27,7 @@ public class TaskService {
         }
     }
 
-    public List<Task> findAll() {
+    public List<Task> getAll() {
         return taskRepository.findAll();
     }
 

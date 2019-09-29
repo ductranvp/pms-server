@@ -135,6 +135,7 @@ public class UserService {
         }
     }
 
+    /* for Admin */
     public User updateUser(UserDto userDto) {
         User user = userRepository.findOneByUsername(SecurityUtils.getCurrentUserLogin()).get();
         user.setUsername(userDto.getUsername());
