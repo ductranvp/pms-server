@@ -2,31 +2,31 @@ package vn.ptit.pms.domain;
 
 import lombok.*;
 import vn.ptit.pms.domain.audit.AuditEvent;
-import vn.ptit.pms.domain.enumeration.NotificationType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "sub_task")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode(callSuper = false)
-public class Notification extends AuditEvent implements Serializable {
+@EqualsAndHashCode
+public class SubTask extends AuditEvent implements Serializable {
     public static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    private String content;
+    private String name;
 
-    @Enumerated(EnumType.STRING)
-    private NotificationType type;
+    private boolean completed;
 
-    @Column(name = "target_id")
-    private String targetUrl = "";
+    @NotNull
+    @Column(name = "parent_id")
+    private Long parentId;
 }

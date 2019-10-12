@@ -64,6 +64,7 @@ public class UserProjectService {
         List<UserProjectDto> users = new ArrayList<>();
         list.forEach(userProject -> {
             UserProjectDto dto = new UserProjectDto();
+            dto.setProjectId(userProject.getId().getProjectId());
             dto.setUser(userProject.getUser());
             dto.setRole(userProject.getRole());
             users.add(dto);

@@ -3,11 +3,12 @@ package vn.ptit.pms.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import vn.ptit.pms.domain.Attachment;
-import vn.ptit.pms.domain.Comment;
+import vn.ptit.pms.domain.*;
+import vn.ptit.pms.domain.key.UserNotificationKey;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.CommentRepository;
 import vn.ptit.pms.service.dto.CommentDto;
+import vn.ptit.pms.service.dto.NotificationDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,17 @@ public class CommentService {
     @Autowired
     AttachmentService attachmentService;
 
+    @Autowired
+    private NotificationService notificationService;
+    @Autowired
+    private UserNotificationService userNotificationService;
+    @Autowired
+    private TaskService taskService;
+    @Autowired
+    private UserTaskService userTaskService;
+    @Autowired
+    UserService userService;
+
     public CommentDto create(CommentDto dto, List<MultipartFile> files) {
         CommentDto result = new CommentDto();
         Comment savedComment = commentRepository.save(dto.convertToEntity());
@@ -31,6 +43,18 @@ public class CommentService {
             attachments.add(attachmentService.save(null, result.getId(), file));
         }
         result.setAttachments(attachments);
+
+        User currentUser = userService.getCurrentUser();
+        Notification savedNotification = notificationService.save(NotificationDto.comment(taskService.getById(dto.getTaskId())));
+        List<User> users = userTaskService.getListUserOfTask(dto.getTaskId());
+        users.forEach(user -> {
+            if (user.getId() != currentUser.getId()){
+                /* Create notification for user */
+                UserNotificationKey key = new UserNotificationKey(user.getId(), savedNotification.getId());
+                userNotificationService.save(new UserNotification(key));
+            }
+        });
+
         return result;
     }
 

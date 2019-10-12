@@ -23,4 +23,8 @@ public class UserNotificationService {
     public void delete(Long id) {
 
     }
+
+    public List<UserNotification> getByUserId(Long userId) {
+        return userNotificationRepository.findByIdUserId(userId);
+    }
 }

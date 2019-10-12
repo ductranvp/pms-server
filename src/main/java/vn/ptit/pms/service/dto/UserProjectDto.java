@@ -10,6 +10,7 @@ import vn.ptit.pms.domain.enumeration.ProjectRole;
 @ToString
 @EqualsAndHashCode
 public class UserProjectDto {
+    private Long projectId;
     private User user;
     private ProjectRole role;
 }

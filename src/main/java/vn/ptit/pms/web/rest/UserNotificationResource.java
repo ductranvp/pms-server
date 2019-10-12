@@ -5,8 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.ptit.pms.domain.Notification;
 import vn.ptit.pms.domain.UserNotification;
 import vn.ptit.pms.service.UserNotificationService;
+import vn.ptit.pms.service.dto.NotificationDto;
+import vn.ptit.pms.service.dto.UserNotificationDto;
 
 import java.util.List;
 
@@ -41,5 +44,11 @@ public class UserNotificationResource {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(userNotificationService.save(userNotification));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<UserNotification>> getUserNotifications(@PathVariable Long userId) {
+        log.info("REST request to get list {} by user id: {}", ENTITY_NAME, userId);
+        return ResponseEntity.ok(userNotificationService.getByUserId(userId));
     }
 }

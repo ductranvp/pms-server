@@ -32,7 +32,7 @@ public abstract class AuditEvent implements Serializable {
 
     @LastModifiedBy
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Column(name = "last_modified_by", length = 50)
+    @Column(name = "last_modified_by")
     private Long lastModifiedBy;
 
     @LastModifiedDate

@@ -31,4 +31,8 @@ public class UserNotification implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private NotificationStatus status = NotificationStatus.UNSEEN;
+
+    public UserNotification(UserNotificationKey key) {
+        this.id = key;
+    }
 }

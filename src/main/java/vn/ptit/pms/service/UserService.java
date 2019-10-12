@@ -174,4 +174,13 @@ public class UserService {
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(authority -> authority.getName().name()).collect(Collectors.toList());
     }
+
+    public String getCurrentUserFullName(){
+        return getCurrentUser().getFirstName() + " " + getCurrentUser().getLastName();
+    }
+
+    public String getUserFullName(Long userId){
+        User user = userRepository.findById(userId).get();
+        return user.getFirstName() + " " + user.getLastName();
+    }
 }

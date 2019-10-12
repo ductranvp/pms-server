@@ -50,7 +50,7 @@ public class MailService {
 
     @Async
     public void sendEmailFromTemplate(User user, String templateName, String titleKey) {
-        if (Boolean.valueOf(enableSendMail)){
+        if (new Boolean(enableSendMail)){
             Locale locale = Locale.forLanguageTag(user.getLangKey() == null ? "" : user.getLangKey());
             Context context = new Context(locale);
             context.setVariable(USER, user);

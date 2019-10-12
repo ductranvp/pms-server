@@ -51,11 +51,6 @@ public class Task extends AuditEvent implements Serializable {
     @JsonIgnore
     private boolean deleted = false;
 
-    @Nullable
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Task parent;
-
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

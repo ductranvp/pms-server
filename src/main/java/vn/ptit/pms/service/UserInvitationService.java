@@ -4,13 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.ptit.pms.domain.Invitation;
-import vn.ptit.pms.domain.User;
-import vn.ptit.pms.domain.UserInvitation;
-import vn.ptit.pms.domain.UserProject;
+import vn.ptit.pms.domain.*;
 import vn.ptit.pms.domain.enumeration.InvitationStatus;
 import vn.ptit.pms.domain.enumeration.ProjectRole;
 import vn.ptit.pms.domain.key.UserInvitationKey;
+import vn.ptit.pms.domain.key.UserNotificationKey;
 import vn.ptit.pms.domain.key.UserProjectKey;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.exception.BadRequestException;
@@ -19,6 +17,7 @@ import vn.ptit.pms.repository.UserProjectRepository;
 import vn.ptit.pms.repository.UserRepository;
 import vn.ptit.pms.service.dto.InvitationRequestDto;
 import vn.ptit.pms.service.dto.InvitationResponseDto;
+import vn.ptit.pms.service.dto.NotificationDto;
 import vn.ptit.pms.service.dto.UserInvitationDto;
 
 import java.util.ArrayList;
@@ -45,6 +44,10 @@ public class UserInvitationService {
     private UserProjectRepository userProjectRepository;
     @Autowired
     private UserInvitationService userInvitationService;
+    @Autowired
+    private NotificationService notificationService;
+    @Autowired
+    private UserNotificationService userNotificationService;
 
     public UserInvitation save(UserInvitation invitation) {
         return userInvitationRepository.save(invitation);
@@ -95,20 +98,32 @@ public class UserInvitationService {
     public void sendInvitationRequest(InvitationRequestDto dto) {
         User currentUser = userService.getCurrentUser();
         UserProject userProject = userProjectService.getOneById(new UserProjectKey(currentUser.getId(), dto.getProjectId()));
+
         /*Check current user is Project manager or not */
         if (userProject.getRole().equals(ProjectRole.ROLE_MANAGER)) {
             Invitation invitation = new Invitation(dto.getContent(), dto.getProjectId());
             Invitation savedInvitation = invitationService.save(invitation);
+
+            /* Create notification */
+            String actor = currentUser.getFirstName() + " " + currentUser.getLastName();
+            Notification savedNotification = notificationService.save(NotificationDto.inviteToProject(actor, userProject.getProject().getName()));
+
             dto.getListEmail().forEach(email -> {
                 Optional<User> optionalUser = userRepository.findByEmail(email);
                 /*Check if email existed or not*/
                 if (optionalUser.isPresent()) {
-                    User user = optionalUser.get();
+                    User invitedUser = optionalUser.get();
                     /*Check if user has already in project or not*/
-                    if (!userProjectRepository.findById(new UserProjectKey(user.getId(), dto.getProjectId())).isPresent()) {
-                        UserInvitation userInvitation = new UserInvitation(new UserInvitationKey(user.getId(), savedInvitation.getId()));
+                    if (!userProjectRepository.findById(new UserProjectKey(invitedUser.getId(), dto.getProjectId())).isPresent()) {
+                        UserInvitation userInvitation = new UserInvitation(new UserInvitationKey(invitedUser.getId(), savedInvitation.getId()));
                         userInvitationService.save(userInvitation);
-                        mailService.sendEmailFromTemplate(user, "projectInvitationEmail", "email.invitation.title");
+
+                        /* Create notification for user */
+                        UserNotificationKey key = new UserNotificationKey(invitedUser.getId(), savedNotification.getId());
+                        userNotificationService.save(new UserNotification(key));
+
+                        log.info("Send invitation mail to {}", email);
+                        mailService.sendEmailFromTemplate(invitedUser, "projectInvitationEmail", "email.invitation.title");
                     } else {
                         log.info("Email {} has already in project", email);
                     }

@@ -26,7 +26,7 @@ public class TaskResource {
         if (task.getId() != null) {
             throw new BadRequestException("A new " + ENTITY_NAME + " cannot already have an ID");
         }
-        return ResponseEntity.ok(taskService.save(task));
+        return ResponseEntity.ok(taskService.create(task));
     }
 
     @GetMapping("/list")
@@ -47,7 +47,7 @@ public class TaskResource {
         if (task.getId() == null) {
             throw new BadRequestException(ENTITY_NAME + " must have an ID");
         }
-        return ResponseEntity.ok(taskService.save(task));
+        return ResponseEntity.ok(taskService.update(task));
     }
 
     @DeleteMapping("/delete/{id}")
