@@ -4,16 +4,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.ptit.pms.domain.Category;
 import vn.ptit.pms.domain.Project;
+import vn.ptit.pms.domain.Task;
 import vn.ptit.pms.domain.UserProject;
 import vn.ptit.pms.domain.enumeration.ProjectRole;
+import vn.ptit.pms.domain.enumeration.TaskStatus;
 import vn.ptit.pms.domain.key.UserProjectKey;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.ProjectRepository;
+import vn.ptit.pms.repository.UserProjectRepository;
 import vn.ptit.pms.security.UserPrincipal;
+import vn.ptit.pms.service.dto.CategoryTaskDto;
+import vn.ptit.pms.service.dto.ProjectTaskDto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -27,6 +35,15 @@ public class ProjectService {
 
     @Autowired
     UserProjectService userProjectService;
+
+    @Autowired
+    CategoryService categoryService;
+
+    @Autowired
+    TaskService taskService;
+
+    @Autowired
+    UserProjectRepository userProjectRepository;
 
     public Project save(Project project, UserPrincipal userPrincipal) {
         Project savedProject = projectRepository.save(project);
@@ -56,5 +73,31 @@ public class ProjectService {
         } catch (NoSuchElementException e) {
             throw new AppException("Project could not be found");
         }
+    }
+
+    public ProjectTaskDto getProjectTask(Long projectId) {
+        ProjectTaskDto result = new ProjectTaskDto();
+        result.setInfo(projectRepository.findById(projectId).get());
+
+        List<Category> categories = categoryService.getByProjectId(projectId);
+        List<CategoryTaskDto> categoryTaskDtos = new ArrayList<>();
+        categories.forEach(category -> {
+            CategoryTaskDto categoryTaskDto = new CategoryTaskDto();
+            categoryTaskDto.setInfo(category);
+            List<Task> tasks = taskService.getByCategoryId(category.getId());
+            categoryTaskDto.setNoProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.NO_PROGRESS)).collect(Collectors.toList()));
+            categoryTaskDto.setInProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.IN_PROGRESS)).collect(Collectors.toList()));
+            categoryTaskDto.setCompleted(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.COMPLETED)).collect(Collectors.toList()));
+            categoryTaskDto.setVerified(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.VERIFIED)).collect(Collectors.toList()));
+            categoryTaskDto.setShow(true);
+            categoryTaskDtos.add(categoryTaskDto);
+        });
+        result.setCategories(categoryTaskDtos);
+
+        return result;
+    }
+
+    public boolean checkProjectAdmin(Long projectId, Long userId) {
+        return userProjectRepository.findByProjectIdAndUserIdAndRole(projectId, userId, ProjectRole.ROLE_MANAGER) != null;
     }
 }

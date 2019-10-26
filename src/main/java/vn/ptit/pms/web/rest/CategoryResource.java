@@ -27,7 +27,7 @@ public class CategoryResource {
         if (category.getId() != null) {
             return new ResponseEntity<>(ErrorEntity.badRequest("A new " + ENTITY_NAME + " cannot already have an ID"), HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(categoryService.save(category));
+        return ResponseEntity.ok(categoryService.create(category));
     }
 
     @PutMapping("/update")
@@ -36,12 +36,12 @@ public class CategoryResource {
         if (category.getId() == null) {
             return new ResponseEntity<>(ErrorEntity.badRequest(ENTITY_NAME + " must have and ID"), HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(categoryService.save(category));
+        return ResponseEntity.ok(categoryService.update(category));
     }
 
-    @GetMapping("/all")
+    @GetMapping("/list")
     public ResponseEntity<List<Category>> getAll() {
-        log.info("REST request to get all {}", ENTITY_NAME);
+        log.info("REST request to get list {}", ENTITY_NAME);
         return ResponseEntity.ok(categoryService.getAll());
     }
 

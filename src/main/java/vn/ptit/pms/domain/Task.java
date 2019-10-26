@@ -3,7 +3,6 @@ package vn.ptit.pms.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Where;
-import org.springframework.lang.Nullable;
 import vn.ptit.pms.domain.audit.AuditEvent;
 import vn.ptit.pms.domain.enumeration.TaskPriority;
 import vn.ptit.pms.domain.enumeration.TaskStatus;
@@ -35,7 +34,7 @@ public class Task extends AuditEvent implements Serializable {
     private int pos;
 
     @Enumerated(EnumType.STRING)
-    private TaskPriority priority = TaskPriority.LOW;
+    private TaskPriority priority = TaskPriority.NONE;
 
     private Instant estimateStartDate;
     private Instant estimateEndDate;
@@ -44,16 +43,15 @@ public class Task extends AuditEvent implements Serializable {
     private Instant endDate;
 
     @Enumerated(EnumType.STRING)
-    private TaskStatus status = TaskStatus.DRAFT;
+    private TaskStatus status = TaskStatus.NO_PROGRESS;
 
     private boolean overdue = false;
 
     @JsonIgnore
     private boolean deleted = false;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Column(name = "category_id", nullable = false)
+    private Long categoryId;
 
     public Task(Long taskId) {
         this.id = taskId;

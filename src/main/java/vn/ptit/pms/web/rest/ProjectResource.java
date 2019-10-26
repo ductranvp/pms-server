@@ -69,4 +69,15 @@ public class ProjectResource {
         projectService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/get-task/{projectId}")
+    public ResponseEntity<?> getProjectTask(@PathVariable Long projectId) {
+        log.info("REST request to get tasks of {} : {}", ENTITY_NAME, projectId);
+        return ResponseEntity.ok(projectService.getProjectTask(projectId));
+    }
+
+    @GetMapping("/check-project-admin/{projectId}")
+    public boolean checkProjectAdmin(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal){
+        return projectService.checkProjectAdmin(projectId, userPrincipal.getId());
+    }
 }

@@ -14,7 +14,20 @@ public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public Category save(Category category) {
+    private final int INCREMENT = (int) Math.pow(2,16);
+
+    public Category create(Category category) {
+        Long projectId = category.getProjectId();
+        Integer lastPos = categoryRepository.getLastCategoryPos(projectId);
+        int pos = lastPos != null ? lastPos + INCREMENT : INCREMENT-1;
+        category.setPos(pos);
+        return categoryRepository.save(category);
+    }
+
+    public Category update(Category category) {
+        if (category.isArchived()) {
+            category.setPos(-1);
+        }
         return categoryRepository.save(category);
     }
 
@@ -33,12 +46,16 @@ public class CategoryService {
     public void delete(Long id) {
         try {
             Category category = categoryRepository.findById(id).get();
+            category.setPos(-2);
             category.setDeleted(true);
             categoryRepository.save(category);
-//        categoryRepository.deleteById(id);
         } catch (NoSuchElementException e) {
             throw new AppException("Category " + id + " could not be found");
         }
+    }
+
+    public List<Category> getByProjectId(Long projectId) {
+        return categoryRepository.findByProjectIdOrderByPosAsc(projectId);
     }
 
 }

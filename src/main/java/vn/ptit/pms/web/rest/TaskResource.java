@@ -50,6 +50,13 @@ public class TaskResource {
         return ResponseEntity.ok(taskService.update(task));
     }
 
+    @PutMapping("/update-list")
+    public ResponseEntity<Task> updateList(@RequestBody List<Task> list) {
+        log.info("REST request to update list {}: {}", ENTITY_NAME, list);
+        taskService.updateList(list);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("REST request to delete {}: {}", ENTITY_NAME, id);

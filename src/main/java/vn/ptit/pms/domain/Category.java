@@ -1,6 +1,5 @@
 package vn.ptit.pms.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Where;
 import vn.ptit.pms.domain.audit.AuditEvent;
@@ -32,7 +31,6 @@ public class Category extends AuditEvent implements Serializable {
 
     private boolean deleted = false;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
 }

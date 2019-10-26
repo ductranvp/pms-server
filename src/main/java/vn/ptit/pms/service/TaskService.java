@@ -3,7 +3,6 @@ package vn.ptit.pms.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ptit.pms.domain.Task;
-import vn.ptit.pms.domain.enumeration.TaskStatus;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.TaskRepository;
 import vn.ptit.pms.service.dto.ActivityDto;
@@ -23,7 +22,13 @@ public class TaskService {
     @Autowired
     UserService userService;
 
+    private final int INCREMENT = (int) Math.pow(2,16);
+
     public Task create(Task task) {
+        Long categoryId = task.getCategoryId();
+        Integer lastPos = taskRepository.getLastTaskPos(categoryId);
+        int pos = lastPos != null ? lastPos + INCREMENT : INCREMENT-1;
+        task.setPos(pos);
         Task savedTask = taskRepository.save(task);
         activityService.save(ActivityDto.created(userService.getCurrentUserFullName(), savedTask.getId()));
         return savedTask;
@@ -34,11 +39,15 @@ public class TaskService {
         if (!oldTask.getStatus().equals(task.getStatus())) {
             String actor = userService.getCurrentUserFullName();
             activityService.save(ActivityDto.moveTask(actor, task.getStatus().name(), task.getId()));
-        } else if (oldTask.getPriority().equals(task.getPriority())){
+        } else if (!oldTask.getPriority().equals(task.getPriority())) {
             String actor = userService.getCurrentUserFullName();
             activityService.save(ActivityDto.changePriority(actor, task.getPriority().name(), task.getId()));
         }
         return taskRepository.save(task);
+    }
+
+    public void updateList(List<Task> list) {
+        taskRepository.saveAll(list);
     }
 
     public Task getById(Long id) {
@@ -61,5 +70,9 @@ public class TaskService {
         } catch (Exception e) {
             throw new AppException(ENTITY_NAME + " " + id + " could not be found");
         }
+    }
+
+    public List<Task> getByCategoryId(Long categoryId){
+        return taskRepository.findByCategoryIdOrderByPosAsc(categoryId);
     }
 }
