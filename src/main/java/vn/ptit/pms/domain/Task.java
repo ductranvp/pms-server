@@ -36,6 +36,8 @@ public class Task extends AuditEvent implements Serializable {
     @Enumerated(EnumType.STRING)
     private TaskPriority priority = TaskPriority.NONE;
 
+    private long progress;
+
     private Instant estimateStartDate;
     private Instant estimateEndDate;
 
@@ -46,6 +48,9 @@ public class Task extends AuditEvent implements Serializable {
     private TaskStatus status = TaskStatus.NO_PROGRESS;
 
     private boolean overdue = false;
+
+    @JsonIgnore
+    private boolean reminded = false;
 
     @JsonIgnore
     private boolean deleted = false;

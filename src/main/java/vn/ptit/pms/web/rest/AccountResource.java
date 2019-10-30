@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.ptit.pms.domain.User;
 import vn.ptit.pms.repository.AuthorityRepository;
 import vn.ptit.pms.repository.UserRepository;
@@ -99,7 +100,7 @@ public class AccountResource {
     }
 
     @PutMapping("/update")
-    public ResponseEntity updateAccount(@RequestBody UserDto userDto) {
+    public ResponseEntity updateAccount(@RequestPart("dto") UserDto userDto, @RequestPart(value = "image", required = false) MultipartFile image) {
         log.info("REST request to update current {}", ENTITY_NAME);
         final String username = SecurityUtils.getCurrentUserLogin();
         if (username == null)
@@ -112,8 +113,7 @@ public class AccountResource {
         if (!user.isPresent()) {
             return new ResponseEntity<>(ErrorEntity.notFound("User could not be found"), HttpStatus.NOT_FOUND);
         }
-        userService.updateUser(userDto.getFirstName(), userDto.getLastName(), userDto.getEmail(),
-                userDto.getLangKey(), userDto.getImageUrl());
+        userService.updateUser(userDto.getFirstName(), userDto.getLastName(), userDto.getEmail(), image);
         return new ResponseEntity(HttpStatus.OK);
     }
 

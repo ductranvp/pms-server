@@ -11,15 +11,14 @@ import java.util.NoSuchElementException;
 
 @Service
 public class CategoryService {
+    private final int INCREMENT = (int) Math.pow(2, 16);
     @Autowired
     private CategoryRepository categoryRepository;
-
-    private final int INCREMENT = (int) Math.pow(2,16);
 
     public Category create(Category category) {
         Long projectId = category.getProjectId();
         Integer lastPos = categoryRepository.getLastCategoryPos(projectId);
-        int pos = lastPos != null ? lastPos + INCREMENT : INCREMENT-1;
+        int pos = lastPos != null ? lastPos + INCREMENT : INCREMENT - 1;
         category.setPos(pos);
         return categoryRepository.save(category);
     }
@@ -43,6 +42,29 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    public void unArchived(Long id) {
+        try {
+            Category category = categoryRepository.findById(id).get();
+            int pos = categoryRepository.getLastCategoryPos(category.getProjectId());
+            category.setPos(pos + INCREMENT);
+            category.setArchived(false);
+            categoryRepository.save(category);
+        } catch (NoSuchElementException e) {
+            throw new AppException("Category " + id + " could not be found");
+        }
+    }
+
+    public void archive(Long id) {
+        try {
+            Category category = categoryRepository.findById(id).get();
+            category.setPos(-1);
+            category.setArchived(true);
+            categoryRepository.save(category);
+        } catch (NoSuchElementException e) {
+            throw new AppException("Category " + id + " could not be found");
+        }
+    }
+
     public void delete(Long id) {
         try {
             Category category = categoryRepository.findById(id).get();
@@ -54,8 +76,8 @@ public class CategoryService {
         }
     }
 
-    public List<Category> getByProjectId(Long projectId) {
-        return categoryRepository.findByProjectIdOrderByPosAsc(projectId);
+    public List<Category> getByProjectId(Long projectId, boolean archived) {
+        return categoryRepository.findByProjectIdAndArchivedOrderByPosAsc(projectId, archived);
     }
 
 }

@@ -25,20 +25,16 @@ public class AttachmentService {
     private final String ENTITY_NAME = "Attachment";
     @Autowired
     AttachmentRepository attachmentRepository;
-
+    @Autowired
+    UserService userService;
     @Value("${server.port}")
     private Long serverPort;
-
     @Autowired
     private NotificationService notificationService;
     @Autowired
     private UserNotificationService userNotificationService;
     @Autowired
-    private TaskService taskService;
-    @Autowired
     private UserTaskService userTaskService;
-    @Autowired
-    UserService userService;
 
     public Attachment save(Long taskId, Long commentId, MultipartFile file) {
         String attachmentDir = "http://localhost:" + serverPort + "/attachment/";
@@ -55,12 +51,12 @@ public class AttachmentService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (taskId != null){
+        if (taskId != null) {
             User currentUser = userService.getCurrentUser();
-            Notification savedNotification = notificationService.save(NotificationDto.attachment(taskService.getById(taskId)));
+            Notification savedNotification = notificationService.save(NotificationDto.attachment(taskId));
             List<User> users = userTaskService.getListUserOfTask(taskId);
             users.forEach(user -> {
-                if (user.getId() != currentUser.getId()){
+                if (user.getId() != currentUser.getId()) {
                     /* Create notification for user */
                     UserNotificationKey key = new UserNotificationKey(user.getId(), savedNotification.getId());
                     userNotificationService.save(new UserNotification(key));

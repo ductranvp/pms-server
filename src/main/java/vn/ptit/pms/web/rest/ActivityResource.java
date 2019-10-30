@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.ptit.pms.domain.Activity;
 import vn.ptit.pms.service.ActivityService;
+import vn.ptit.pms.service.dto.ActivityDto;
 
 import java.util.List;
 
@@ -29,12 +30,12 @@ public class ActivityResource {
     }
 
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<List<Activity>> getTaskActivities(@PathVariable Long taskId) {
+    public ResponseEntity<List<ActivityDto>> getTaskActivities(@PathVariable Long taskId) {
         log.info("REST request to get list {} by task id: {}", ENTITY_NAME, taskId);
         return ResponseEntity.ok(activityService.getByTaskId(taskId));
     }
 
-    @GetMapping("/all")
+    @GetMapping("/list")
     public ResponseEntity<List<Activity>> getAll() {
         log.info("REST request to get list {}", ENTITY_NAME);
         return ResponseEntity.ok(activityService.getAll());

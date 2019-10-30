@@ -6,5 +6,5 @@ import vn.ptit.pms.domain.Activity;
 import java.util.List;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
-    List<Activity> findByTaskId(Long taskId);
+    List<Activity> findByTaskIdOrderByCreatedDateDesc(Long taskId);
 }

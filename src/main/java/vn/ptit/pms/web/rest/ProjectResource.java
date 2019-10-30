@@ -73,7 +73,13 @@ public class ProjectResource {
     @GetMapping("/get-task/{projectId}")
     public ResponseEntity<?> getProjectTask(@PathVariable Long projectId) {
         log.info("REST request to get tasks of {} : {}", ENTITY_NAME, projectId);
-        return ResponseEntity.ok(projectService.getProjectTask(projectId));
+        return ResponseEntity.ok(projectService.getProjectTask(projectId, false));
+    }
+
+    @GetMapping("/get-task/archived/{projectId}")
+    public ResponseEntity<?> getProjectTaskArchived(@PathVariable Long projectId) {
+        log.info("REST request to get tasks of {} : {}", ENTITY_NAME, projectId);
+        return ResponseEntity.ok(projectService.getProjectTask(projectId, true));
     }
 
     @GetMapping("/check-project-admin/{projectId}")

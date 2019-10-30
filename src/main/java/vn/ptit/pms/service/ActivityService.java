@@ -7,7 +7,9 @@ import vn.ptit.pms.domain.Task;
 import vn.ptit.pms.domain.User;
 import vn.ptit.pms.domain.enumeration.ActivityType;
 import vn.ptit.pms.repository.ActivityRepository;
+import vn.ptit.pms.service.dto.ActivityDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,18 +39,8 @@ public class ActivityService {
         activityRepository.deleteById(id);
     }
 
-    public List<Activity> getByTaskId(Long taskId) {
-        return activityRepository.findByTaskId(taskId);
+    public List<ActivityDto> getByTaskId(Long taskId) {
+        List<Activity> activities = activityRepository.findByTaskIdOrderByCreatedDateDesc(taskId);
+        return new ArrayList<>();
     }
-
-    public Activity createActivity(ActivityType type, Long taskId) {
-        User user = userService.getCurrentUser();
-        Activity activity = new Activity();
-        activity.setType(type);
-        activity.setTaskId(taskId);
-        Task task = taskService.getById(taskId);
-        activity.setContent(user.getFirstName() + user.getLastName() + " created " + task.getName());
-        return activityRepository.save(activity);
-    }
-
 }

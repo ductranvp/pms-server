@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByProjectId(Long projectId);
-    List<Category> findByProjectIdOrderByPosAsc(Long projectId);
+    List<Category> findByProjectIdAndArchivedOrderByPosAsc(Long projectId, boolean archived);
 
     @Query(value = "SELECT MAX(pos) FROM category WHERE project_id = ?1", nativeQuery = true)
     Integer getLastCategoryPos(Long projectId);

@@ -17,6 +17,7 @@ import vn.ptit.pms.repository.UserProjectRepository;
 import vn.ptit.pms.security.UserPrincipal;
 import vn.ptit.pms.service.dto.CategoryTaskDto;
 import vn.ptit.pms.service.dto.ProjectTaskDto;
+import vn.ptit.pms.service.dto.TaskDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,16 +76,16 @@ public class ProjectService {
         }
     }
 
-    public ProjectTaskDto getProjectTask(Long projectId) {
+    public ProjectTaskDto getProjectTask(Long projectId, boolean isCategoryArchived) {
         ProjectTaskDto result = new ProjectTaskDto();
         result.setInfo(projectRepository.findById(projectId).get());
 
-        List<Category> categories = categoryService.getByProjectId(projectId);
+        List<Category> categories = categoryService.getByProjectId(projectId, isCategoryArchived);
         List<CategoryTaskDto> categoryTaskDtos = new ArrayList<>();
         categories.forEach(category -> {
             CategoryTaskDto categoryTaskDto = new CategoryTaskDto();
             categoryTaskDto.setInfo(category);
-            List<Task> tasks = taskService.getByCategoryId(category.getId());
+            List<TaskDto> tasks = taskService.getDtoByCategoryId(category.getId());
             categoryTaskDto.setNoProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.NO_PROGRESS)).collect(Collectors.toList()));
             categoryTaskDto.setInProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.IN_PROGRESS)).collect(Collectors.toList()));
             categoryTaskDto.setCompleted(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.COMPLETED)).collect(Collectors.toList()));

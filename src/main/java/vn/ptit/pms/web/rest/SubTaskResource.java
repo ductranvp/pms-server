@@ -15,8 +15,8 @@ public class SubTaskResource {
     SubTaskService subTaskService;
 
     @PostMapping("/create")
-    public ResponseEntity<SubTask> create(@RequestBody SubTask subTask) {
-        return ResponseEntity.ok(subTaskService.create(subTask));
+    public ResponseEntity<List<SubTask>> create(@RequestBody List<SubTask> list) {
+        return ResponseEntity.ok(subTaskService.create(list));
     }
 
     @GetMapping("/get/{id}")

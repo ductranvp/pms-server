@@ -16,50 +16,45 @@ public class NotificationDto {
     private String content;
     private NotificationType type;
 
-    public static Notification inviteToProject(String actor, String projectName){
+    public static Notification inviteToProject(Long target){
         Notification notification = new Notification();
-        notification.setContent("<b>" + actor + "</b> invite you to " + projectName);
         notification.setType(NotificationType.INVITE_TO_PROJECT);
+        notification.setTarget(String.valueOf(target));
         return notification;
     }
 
-    public static Notification assignTask(Task task){
+    public static Notification assignTask(Long target){
         Notification notification = new Notification();
-//        notification.setContent("<b>" + task.getName() + "</b> is overdue");
-//        notification.setTargetUrl("/project/" + task.getCategory().getProject().getId() + "/task/" + task.getId());
-//        notification.setType(NotificationType.ASSIGN_TASK);
+        notification.setType(NotificationType.ASSIGN_TASK);
+        notification.setTarget(String.valueOf(target));
         return notification;
     }
 
-    public static Notification addSubTask(Task task){
+    public static Notification addSubTask(Long target){
         Notification notification = new Notification();
-//        notification.setContent("<b>" + task.getName() + "</b> is overdue");
-//        notification.setTargetUrl("/project/" + task.getCategory().getProject().getId() + "/task/" + task.getId());
-//        notification.setType(NotificationType.ADD_SUB_TASK);
+        notification.setType(NotificationType.ADD_SUB_TASK);
+        notification.setTarget(String.valueOf(target));
         return notification;
     }
 
-    public static Notification comment(Task task){
+    public static Notification comment(Long target){
         Notification notification = new Notification();
-//        notification.setContent("<b>" + task.getName() + "</b> is overdue");
-//        notification.setTargetUrl("/project/" + task.getCategory().getProject().getId() + "/task/" + task.getId());
-//        notification.setType(NotificationType.COMMENT);
+        notification.setType(NotificationType.COMMENT);
+        notification.setTarget(String.valueOf(target));
         return notification;
     }
 
-    public static Notification attachment(Task task){
+    public static Notification attachment(Long target){
         Notification notification = new Notification();
-//        notification.setContent("<b>" + task.getName() + "</b> is overdue");
-//        notification.setTargetUrl("/project/" + task.getCategory().getProject().getId() + "/task/" + task.getId());
-//        notification.setType(NotificationType.ATTACHMENT);
+        notification.setType(NotificationType.ATTACHMENT);
+        notification.setTarget(String.valueOf(target));
         return notification;
     }
 
-    public static Notification taskOverdue(Task task){
+    public static Notification taskOverdue(Long target){
         Notification notification = new Notification();
-//        notification.setContent("<b>" + task.getName() + "</b> is overdue");
-//        notification.setTargetUrl("/project/" + task.getCategory().getProject().getId() + "/task/" + task.getId());
-//        notification.setType(NotificationType.TASK_OVERDUE);
+        notification.setType(NotificationType.TASK_OVERDUE);
+        notification.setTarget(String.valueOf(target));
         return notification;
     }
 }

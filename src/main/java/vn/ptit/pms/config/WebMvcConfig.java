@@ -21,5 +21,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/attachment/**").addResourceLocations("file:///D:/pms/attachment/");
+        registry.addResourceHandler("/avatar/**").addResourceLocations("file:///D:/pms/avatar/");
     }
 }

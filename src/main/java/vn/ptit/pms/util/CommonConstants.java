@@ -5,4 +5,5 @@ public interface CommonConstants {
     String APP_PACKAGE = "vn.ptit.pms";
     String DEFAULT_LANGUAGE = "en";
     String SAVED_ATTACHMENT_PATH = "D:\\pms\\attachment";
+    String SAVED_AVATAR_PATH = "D:\\pms\\avatar";
 }

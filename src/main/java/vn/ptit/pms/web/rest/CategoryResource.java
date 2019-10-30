@@ -51,6 +51,20 @@ public class CategoryResource {
         return ResponseEntity.ok(categoryService.getOneById(id));
     }
 
+    @PutMapping("/archive/{id}")
+    public ResponseEntity<Void> archive(@PathVariable Long id) {
+        log.info("REST request to archive {}", ENTITY_NAME);
+        categoryService.archive(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/un-archive/{id}")
+    public ResponseEntity<Void> unArchive(@PathVariable Long id) {
+        log.info("REST request to un-archive {}", ENTITY_NAME);
+        categoryService.unArchived(id);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("REST request to delete {}", ENTITY_NAME);

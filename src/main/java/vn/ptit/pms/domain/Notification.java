@@ -21,12 +21,9 @@ public class Notification extends AuditEvent implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String content;
-
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    @Column(name = "target_id")
-    private String targetUrl = "";
+    @Column(name = "target")
+    private String target;
 }

@@ -8,9 +8,12 @@ import vn.ptit.pms.domain.User;
 import vn.ptit.pms.domain.UserNotification;
 import vn.ptit.pms.domain.key.UserNotificationKey;
 import vn.ptit.pms.repository.SubTaskRepository;
+import vn.ptit.pms.repository.UserNotificationRepository;
 import vn.ptit.pms.service.dto.ActivityDto;
 import vn.ptit.pms.service.dto.NotificationDto;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,32 +26,33 @@ public class SubTaskService {
 
     @Autowired
     UserService userService;
-
+    @Autowired
+    UserNotificationRepository userNotificationRepository;
     @Autowired
     private NotificationService notificationService;
     @Autowired
-    private UserNotificationService userNotificationService;
-    @Autowired
-    private TaskService taskService;
-    @Autowired
     private UserTaskService userTaskService;
 
-    public SubTask create(SubTask subTask) {
+    @Transactional
+    public List<SubTask> create(List<SubTask> list) {
         User currentUser = userService.getCurrentUser();
-        String actor = currentUser.getFirstName() + " " + currentUser.getLastName();
-        activityService.save(ActivityDto.addSubTask(actor, subTask.getName(), subTask.getParentId()));
+        Notification savedNotification = notificationService.save(NotificationDto.addSubTask(list.get(0).getParentId()));
+        List<User> users = userTaskService.getListUserOfTask(list.get(0).getParentId());
 
-        Notification savedNotification = notificationService.save(NotificationDto.addSubTask(taskService.getById(subTask.getParentId())));
-        List<User> users = userTaskService.getListUserOfTask(subTask.getParentId());
+        List<UserNotification> userNotifications = new ArrayList<>();
         users.forEach(user -> {
-            if (user.getId() != currentUser.getId()){
+            if (user.getId() != currentUser.getId()) {
                 /* Create notification for user */
                 UserNotificationKey key = new UserNotificationKey(user.getId(), savedNotification.getId());
-                userNotificationService.save(new UserNotification(key));
+                userNotifications.add(new UserNotification(key));
             }
         });
+        userNotificationRepository.saveAll(userNotifications);
 
-        return subTaskRepository.save(subTask);
+        List<SubTask> result = subTaskRepository.saveAll(list);
+        activityService.save(ActivityDto.addSubTask(list.get(0).getParentId(), result.get(0).getId()));
+
+        return result;
     }
 
     public SubTask getOneById(Long id) {
@@ -60,11 +64,10 @@ public class SubTaskService {
     }
 
     public SubTask update(SubTask subTask) {
-        String actor = userService.getCurrentUserFullName();
-        if (subTask.isCompleted()){
-            activityService.save(ActivityDto.checkSubTask(actor, subTask.getName(), subTask.getParentId()));
+        if (subTask.isCompleted()) {
+            activityService.save(ActivityDto.checkSubTask(subTask.getParentId(), subTask.getId()));
         } else {
-            activityService.save(ActivityDto.unCheckSubTask(actor, subTask.getName(), subTask.getParentId()));
+            activityService.save(ActivityDto.unCheckSubTask(subTask.getParentId(), subTask.getId()));
         }
         return subTaskRepository.save(subTask);
     }

@@ -45,7 +45,7 @@ public class CommentService {
         result.setAttachments(attachments);
 
         User currentUser = userService.getCurrentUser();
-        Notification savedNotification = notificationService.save(NotificationDto.comment(taskService.getById(dto.getTaskId())));
+        Notification savedNotification = notificationService.save(NotificationDto.comment(dto.getTaskId()));
         List<User> users = userTaskService.getListUserOfTask(dto.getTaskId());
         users.forEach(user -> {
             if (user.getId() != currentUser.getId()){

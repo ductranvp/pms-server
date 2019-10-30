@@ -21,12 +21,12 @@ public class Activity extends AuditEvent implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String content;
-
     @Enumerated(EnumType.STRING)
     private ActivityType type;
 
     @Column(name = "task_id", nullable = false)
     private Long taskId;
+
+    @Column(name = "target")
+    private String target;
 }

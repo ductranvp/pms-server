@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.ptit.pms.domain.Task;
 import vn.ptit.pms.exception.BadRequestException;
 import vn.ptit.pms.service.TaskService;
+import vn.ptit.pms.service.dto.TaskDto;
 
 import java.util.List;
 
@@ -36,9 +37,9 @@ public class TaskResource {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Task> get(@PathVariable Long id) {
+    public ResponseEntity<TaskDto> get(@PathVariable Long id) {
         log.info("REST request to get {}: {}", ENTITY_NAME, id);
-        return ResponseEntity.ok(taskService.getById(id));
+        return ResponseEntity.ok(taskService.getDtoById(id));
     }
 
     @PutMapping("/update")
@@ -54,6 +55,13 @@ public class TaskResource {
     public ResponseEntity<Task> updateList(@RequestBody List<Task> list) {
         log.info("REST request to update list {}: {}", ENTITY_NAME, list);
         taskService.updateList(list);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/update-list-position")
+    public ResponseEntity<Task> updateListPosition(@RequestBody List<Task> list) {
+        log.info("REST request to update list {}: {}", ENTITY_NAME, list);
+        taskService.updateListPosition(list);
         return ResponseEntity.ok().build();
     }
 

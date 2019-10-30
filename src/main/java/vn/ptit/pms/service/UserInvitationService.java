@@ -105,8 +105,7 @@ public class UserInvitationService {
             Invitation savedInvitation = invitationService.save(invitation);
 
             /* Create notification */
-            String actor = currentUser.getFirstName() + " " + currentUser.getLastName();
-            Notification savedNotification = notificationService.save(NotificationDto.inviteToProject(actor, userProject.getProject().getName()));
+            Notification savedNotification = notificationService.save(NotificationDto.inviteToProject(dto.getProjectId()));
 
             dto.getListEmail().forEach(email -> {
                 Optional<User> optionalUser = userRepository.findByEmail(email);

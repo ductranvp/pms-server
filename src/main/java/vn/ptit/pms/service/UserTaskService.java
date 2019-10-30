@@ -35,12 +35,10 @@ public class UserTaskService {
     private TaskService taskService;
 
     public void save(AssignTaskDto dto) {
-        String actor = userService.getCurrentUserFullName();
-
-        Notification savedNotification = notificationService.save(NotificationDto.assignTask(taskService.getById(dto.getTaskId())));
+        Notification savedNotification = notificationService.save(NotificationDto.assignTask(dto.getTaskId()));
 
         for (Long userId : dto.getListUserId()) {
-            activityService.save(ActivityDto.addMember(actor, userService.getUserFullName(userId), dto.getTaskId()));
+            activityService.save(ActivityDto.addMember(dto.getTaskId(), userId));
             UserTask userTask = new UserTask(new UserTaskKey(userId, dto.getTaskId()));
             userTaskRepository.save(userTask);
 

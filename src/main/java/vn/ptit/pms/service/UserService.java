@@ -3,8 +3,10 @@ package vn.ptit.pms.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vn.ptit.pms.domain.Authority;
 import vn.ptit.pms.domain.User;
 import vn.ptit.pms.domain.enumeration.AuthorityName;
@@ -18,6 +20,9 @@ import vn.ptit.pms.service.dto.core.SignUpDto;
 import vn.ptit.pms.util.CommonConstants;
 import vn.ptit.pms.util.RandomUtil;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +44,9 @@ public class UserService {
 
     @Autowired
     MailService mailService;
+
+    @Value("${server.port}")
+    private Long serverPort;
 
     public Optional<User> activateRegistration(String key) {
         log.info("Activating user for activation key {}", key);
@@ -121,15 +129,28 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+    private String getExtensionFile(String fileName) {
+        return fileName.substring(fileName.lastIndexOf('.'));
+    }
+
+    public void updateUser(String firstName, String lastName, String email, MultipartFile image) {
         Optional<User> optionalUser = userRepository.findOneByUsername(SecurityUtils.getCurrentUserLogin());
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
+            if (image != null){
+                String attachmentDir = "http://localhost:" + serverPort + "/avatar/";
+                String fileName = UUID.randomUUID() + getExtensionFile(image.getOriginalFilename());
+                try {
+                    Files.createDirectories(Paths.get(CommonConstants.SAVED_AVATAR_PATH));
+                    Files.copy(image.getInputStream(), Paths.get(CommonConstants.SAVED_AVATAR_PATH, fileName));
+                    user.setImageUrl(attachmentDir + fileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setEmail(email.toLowerCase());
-            user.setLangKey(langKey);
-            user.setImageUrl(imageUrl);
             log.debug("Changed Information for User: {}", user);
             userRepository.save(user);
         }
@@ -162,6 +183,10 @@ public class UserService {
         } catch (Exception e) {
             throw new AppException("Current user not found");
         }
+    }
+
+    public User getUserById(Long id){
+        return userRepository.findById(id).get();
     }
 
     public void deleteUser(String username) {
