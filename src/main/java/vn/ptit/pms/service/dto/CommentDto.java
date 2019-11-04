@@ -5,6 +5,7 @@ import lombok.*;
 import vn.ptit.pms.domain.Attachment;
 import vn.ptit.pms.domain.Comment;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +21,27 @@ public class CommentDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean edited = false;
     private Long taskId;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Attachment> removeAttachments = new ArrayList<>();
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<Attachment> attachments = new ArrayList<>();
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private UserDto author;
+
+    private Instant createdDate;
+    private Instant lastModifiedDate;
+
+    public CommentDto(Comment comment) {
+        this.id = comment.getId();
+        this.content = comment.getContent();
+        this.edited = comment.isEdited();
+        this.taskId = comment.getTaskId();
+        this.createdDate = comment.getCreatedDate();
+        this.lastModifiedDate = comment.getLastModifiedDate();
+    }
 
     public static CommentDto valueOf(Comment comment) {
         CommentDto dto = new CommentDto();

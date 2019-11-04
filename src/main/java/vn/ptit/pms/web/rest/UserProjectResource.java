@@ -1,14 +1,20 @@
 package vn.ptit.pms.web.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 import vn.ptit.pms.domain.Project;
+import vn.ptit.pms.domain.key.UserProjectKey;
+import vn.ptit.pms.security.UserPrincipal;
+import vn.ptit.pms.security.annotation.CurrentUser;
 import vn.ptit.pms.service.ProjectService;
 import vn.ptit.pms.service.UserProjectService;
 import vn.ptit.pms.service.UserService;
 import vn.ptit.pms.service.dto.TotalUserProjectDto;
 import vn.ptit.pms.service.dto.UserProjectDto;
+import vn.ptit.pms.service.dto.core.ErrorEntity;
 
 import java.util.List;
 
@@ -26,7 +32,11 @@ public class UserProjectResource {
     UserProjectService userProjectService;
 
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<List<UserProjectDto>> getUserProjectByProjectId(@PathVariable Long projectId) {
+    public ResponseEntity<?> getUserProjectByProjectId(@PathVariable Long projectId,
+                                                                          @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getId();
+        if (!userProjectService.isUserInProject(userId, projectId))
+            return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(userProjectService.getUserProjectByProjectId(projectId));
     }
 
@@ -62,7 +72,13 @@ public class UserProjectResource {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<List<Project>> update() {
-        return ResponseEntity.ok(userProjectService.getByCloseStatus());
+    public ResponseEntity<UserProjectDto> update(@RequestBody UserProjectDto dto) {
+        return ResponseEntity.ok(userProjectService.updateUserProject(dto));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete(@RequestParam("userId") Long userId, @RequestParam("projectId") Long projectId) {
+        userProjectService.delete(new UserProjectKey(userId, projectId));
+        return ResponseEntity.ok().build();
     }
 }

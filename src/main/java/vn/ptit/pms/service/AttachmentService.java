@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AttachmentService {
@@ -36,14 +37,14 @@ public class AttachmentService {
     @Autowired
     private UserTaskService userTaskService;
 
-    public Attachment save(Long taskId, Long commentId, MultipartFile file) {
+    public Attachment save(Long projectId, Long taskId, Long commentId, MultipartFile file) {
         String attachmentDir = "http://localhost:" + serverPort + "/attachment/";
         Attachment attachment = new Attachment();
         attachment.setName(file.getOriginalFilename());
         attachment.setType(file.getContentType());
         attachment.setTaskId(taskId);
         attachment.setCommentId(commentId);
-        String fileName = (new Date()).getTime() + getExtensionFile(file.getOriginalFilename());
+        String fileName = UUID.randomUUID().toString() + getExtensionFile(file.getOriginalFilename());
         attachment.setUrl(attachmentDir + fileName);
         try {
             Files.createDirectories(Paths.get(CommonConstants.SAVED_ATTACHMENT_PATH));
@@ -98,5 +99,9 @@ public class AttachmentService {
         } catch (Exception e) {
             throw new AppException(ENTITY_NAME + " " + id + " could not be found");
         }
+    }
+
+    public List<Attachment> getByProjectId(Long projectId) {
+        return attachmentRepository.findByProjectId(projectId);
     }
 }

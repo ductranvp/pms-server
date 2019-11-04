@@ -28,10 +28,46 @@ public class TaskDto {
     private Instant endDate;
     private TaskStatus status = TaskStatus.NO_PROGRESS;
     private boolean overdue = false;
+    private boolean reminded = false;
     private Long categoryId;
-    private List<UserDto> users = new ArrayList<>();
+    /* Additional */
     private UserDto creator;
+    private List<UserDto> users = new ArrayList<>();
+    private List<UserDto> unassignedUsers = new ArrayList<>();
     private List<Attachment> attachments = new ArrayList<>();
+    private List<Attachment> removeAttachments = new ArrayList<>();
+
+    public Task toEntity(){
+        Task task = new Task();
+        task.setId(id);
+        task.setName(name);
+        task.setDescription(description);
+        task.setPos(pos);
+        task.setPriority(priority);
+        task.setProgress(progress);
+        task.setEstimateStartDate(estimateStartDate);
+        task.setEstimateEndDate(estimateEndDate);
+        task.setStartDate(startDate);
+        task.setEndDate(endDate);
+        task.setStatus(status);
+        task.setOverdue(overdue);
+        task.setReminded(reminded);
+        task.setCategoryId(categoryId);
+        return task;
+    }
+
+    public Task updateAttribute(Task task){
+        task.setName(name);
+        task.setDescription(description);
+        task.setPos(pos);
+        task.setPriority(priority);
+        task.setProgress(progress);
+        task.setEstimateStartDate(estimateStartDate);
+        task.setEstimateEndDate(estimateEndDate);
+        task.setStatus(status);
+        task.setCategoryId(categoryId);
+        return task;
+    }
 
     public TaskDto(Task task) {
         this.id = task.getId();

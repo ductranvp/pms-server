@@ -2,6 +2,9 @@ package vn.ptit.pms.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import vn.ptit.pms.domain.Attachment;
+import vn.ptit.pms.domain.Category;
 import vn.ptit.pms.domain.Task;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.TaskRepository;
@@ -28,6 +31,12 @@ public class TaskService {
     UserTaskRepository userTaskRepository;
     @Autowired
     AttachmentService attachmentService;
+    @Autowired
+    CategoryService categoryService;
+    @Autowired
+    ProjectService projectService;
+    @Autowired
+    UserProjectService userProjectService;
 
     public Task create(Task task) {
         Long categoryId = task.getCategoryId();
@@ -39,63 +48,46 @@ public class TaskService {
         return savedTask;
     }
 
-    public Task update(Task task) {
-        Task oldTask = taskRepository.findById(task.getId()).get();
-        if (!oldTask.getStatus().equals(task.getStatus())) {
-            activityService.save(ActivityDto.moveTask(task.getId(), task.getStatus().name()));
-        } else if (!oldTask.getPriority().equals(task.getPriority())) {
-            activityService.save(ActivityDto.changePriority(task.getId(), task.getPriority().name()));
+    @Transactional
+    public void update(TaskDto dto, List<MultipartFile> files) {
+        for (Attachment att : dto.getRemoveAttachments()) {
+            attachmentService.delete(att.getId());
         }
-        return taskRepository.save(task);
+        for (MultipartFile file : files) {
+            attachmentService.save(null, dto.getId(), null, file);
+        }
+
+        Task oldTask = taskRepository.findById(dto.getId()).get();
+        if (!oldTask.getPriority().equals(dto.getPriority())) {
+            activityService.save(ActivityDto.changePriority(dto.getId(), dto.getPriority().name()));
+        }
+        taskRepository.save(dto.updateAttribute(oldTask));
     }
 
     @Transactional
-    public void updateListPosition(List<Task> tasks){
+    public void updateListPosition(List<Task> tasks) {
         int pos = INCREMENT - 1;
-        taskRepository.updatePos(tasks.get(0).getId(), pos);
-        for (int i = 1; i < tasks.size(); i++){
-            pos += INCREMENT;
+        for (int i = 0; i < tasks.size(); i++) {
             taskRepository.updatePos(tasks.get(i).getId(), pos);
+            pos += INCREMENT;
         }
     }
 
-    public void updateList(List<Task> list) {
-        taskRepository.saveAll(list);
+    public Long getProjectIdByTaskId(Long taskId) {
+        return taskRepository.findProjectIdByTaskId(taskId);
     }
 
-    public Task getById(Long id) {
-        try {
-            return taskRepository.findById(id).get();
-        } catch (Exception e) {
-            throw new AppException(ENTITY_NAME + " " + id + " could not be found");
-        }
-    }
-
-    public TaskDto getDtoById(Long id) {
-        Task currentTask = taskRepository.findById(id).get();
+    public TaskDto getDtoById(Long taskId) {
+        Task currentTask = taskRepository.findById(taskId).get();
         TaskDto dto = new TaskDto(currentTask);
-        dto.setUsers(userTaskRepository.findUserByTaskId(id));
+        dto.setUsers(userTaskRepository.findUserByTaskId(taskId));
         dto.setCreator(new UserDto(userService.getUserById(currentTask.getCreatedBy())));
-        dto.setAttachments(attachmentService.getByTaskId(id));
+        dto.setAttachments(attachmentService.getByTaskId(taskId));
+        Category category = categoryService.getOneById(currentTask.getCategoryId());
+        List<UserDto> userDtos = userProjectService.getListUserOfProject(category.getProjectId());
+        dto.getUsers().forEach(userDtos::remove);
+        dto.setUnassignedUsers(userDtos);
         return dto;
-    }
-
-    public List<Task> getAll() {
-        return taskRepository.findAll();
-    }
-
-    public void delete(Long id) {
-        try {
-            Task task = taskRepository.findById(id).get();
-            task.setDeleted(true);
-            taskRepository.save(task);
-        } catch (Exception e) {
-            throw new AppException(ENTITY_NAME + " " + id + " could not be found");
-        }
-    }
-
-    public List<Task> getByCategoryId(Long categoryId) {
-        return taskRepository.findByCategoryIdOrderByPosAsc(categoryId);
     }
 
     public List<TaskDto> getDtoByCategoryId(Long categoryId) {
@@ -107,5 +99,26 @@ public class TaskService {
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    @Transactional
+    public void updatePosition(Task task) {
+        Task oldTask = taskRepository.findById(task.getId()).get();
+        if (!oldTask.getStatus().equals(task.getStatus())) {
+            activityService.save(ActivityDto.moveTask(task.getId(), task.getStatus().name()));
+        }
+        oldTask.setPos(task.getPos());
+        oldTask.setStatus(task.getStatus());
+        taskRepository.save(oldTask);
+    }
+
+    public void delete(Long id) {
+        try {
+            Task task = taskRepository.findById(id).get();
+            task.setDeleted(true);
+            taskRepository.save(task);
+        } catch (Exception e) {
+            throw new AppException(ENTITY_NAME + " " + id + " could not be found");
+        }
     }
 }

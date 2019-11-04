@@ -35,35 +35,35 @@ public class Scheduler {
     @Autowired
     private TaskRepository taskRepository;
 
-    @Scheduled(fixedRate = 300000)
-    @Transactional
-    public void checkTaskOverdue() {
-        log.info("Check task overdue");
-        List<Task> tasks = taskRepository.findByOverdueAndEstimateEndDateIsNotNull(false);
-        tasks.forEach(task -> {
-            if (task.getEstimateEndDate().getNano() >= Instant.now().getNano()) {
-                taskRepository.setOverdue(task.getId(), true);
-            }
-        });
-    }
-
-    @Scheduled(fixedRate = 300000)
-    public void overdueReminder() {
-        log.info("Overdue reminder");
-        List<Task> tasks = taskRepository.findByRemindedAndOverdueAndEstimateEndDateIsNotNull(false, false);
-        long oneDay = 86400 * 1000;
-        tasks.forEach(task -> {
-            if (task.getEstimateEndDate().toEpochMilli() - oneDay <= Instant.now().toEpochMilli()) {
-                Notification savedNotification = notificationService.save(NotificationDto.taskOverdue(task.getId()));
-                List<User> users = userTaskService.getListUserOfTask(task.getId());
-                users.forEach(user -> {
-                    /* Create notification for user */
-                    UserNotificationKey key = new UserNotificationKey(user.getId(), savedNotification.getId());
-                    userNotificationService.save(new UserNotification(key));
-                });
-                task.setOverdue(true);
-                taskRepository.setReminded(task.getId(), true);
-            }
-        });
-    }
+//    @Scheduled(fixedRate = 300000)
+//    @Transactional
+//    public void checkTaskOverdue() {
+//        log.info("Check task overdue");
+//        List<Task> tasks = taskRepository.findByOverdueAndEstimateEndDateIsNotNull(false);
+//        tasks.forEach(task -> {
+//            if (task.getEstimateEndDate().getNano() >= Instant.now().getNano()) {
+//                taskRepository.setOverdue(task.getId(), true);
+//            }
+//        });
+//    }
+//
+//    @Scheduled(fixedRate = 300000)
+//    public void overdueReminder() {
+//        log.info("Overdue reminder");
+//        List<Task> tasks = taskRepository.findByRemindedAndOverdueAndEstimateEndDateIsNotNull(false, false);
+//        long oneDay = 86400 * 1000;
+//        tasks.forEach(task -> {
+//            if (task.getEstimateEndDate().toEpochMilli() - oneDay <= Instant.now().toEpochMilli()) {
+//                Notification savedNotification = notificationService.save(NotificationDto.taskOverdue(task.getId()));
+//                List<User> users = userTaskService.getListUserOfTask(task.getId());
+//                users.forEach(user -> {
+//                    /* Create notification for user */
+//                    UserNotificationKey key = new UserNotificationKey(user.getId(), savedNotification.getId());
+//                    userNotificationService.save(new UserNotification(key));
+//                });
+//                task.setOverdue(true);
+//                taskRepository.setReminded(task.getId(), true);
+//            }
+//        });
+//    }
 }

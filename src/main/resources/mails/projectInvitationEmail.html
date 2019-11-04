@@ -10,11 +10,11 @@
     Dear
 </p>
 <p th:text="#{email.activation.text1}">
-    Your account has been created, please click on the URL below to activate it:
+    Your PMS account have a project invitation. Click url below to access it:
 </p>
 <p>
-    <a th:href="${baseUrl}+ '/invitation'"
-       th:text="${baseUrl}+ '/invitation'">Activation Link</a>
+    <a th:href="${baseUrl}+ '/user-invitation'"
+       th:text="${baseUrl}+ '/user-invitation'">Activation Link</a>
 </p>
 <p>
     <span th:text="#{email.activation.text2}">Regards, </span>

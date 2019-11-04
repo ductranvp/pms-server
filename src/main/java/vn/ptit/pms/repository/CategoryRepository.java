@@ -12,4 +12,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query(value = "SELECT MAX(pos) FROM category WHERE project_id = ?1", nativeQuery = true)
     Integer getLastCategoryPos(Long projectId);
+
+    @Query(value = "SELECT p.id FROM project p JOIN category c on p.id = c.project_id WHERE c.id = ?1", nativeQuery = true)
+    Long findProjectIdByCategoryId(Long categoryId);
 }

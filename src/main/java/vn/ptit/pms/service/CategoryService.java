@@ -80,4 +80,8 @@ public class CategoryService {
         return categoryRepository.findByProjectIdAndArchivedOrderByPosAsc(projectId, archived);
     }
 
+    public Long getProjectIdByCategoryId(Long categoryId) {
+        return categoryRepository.findProjectIdByCategoryId(categoryId);
+    }
+
 }

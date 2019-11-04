@@ -21,6 +21,10 @@ public class ErrorEntity {
         this.errors = error;
     }
 
+    public static ErrorEntity accessReject(String message){
+        return new ErrorEntity(HttpStatus.NON_AUTHORITATIVE_INFORMATION.value(), message, HttpStatus.NON_AUTHORITATIVE_INFORMATION.getReasonPhrase());
+    }
+
     public static ErrorEntity internalError(String message) {
         return new ErrorEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(), message, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
     }

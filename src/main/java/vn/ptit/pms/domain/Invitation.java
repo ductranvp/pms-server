@@ -21,7 +21,6 @@ public class Invitation extends AuditEvent implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     private String content;
 
     @JsonIgnore

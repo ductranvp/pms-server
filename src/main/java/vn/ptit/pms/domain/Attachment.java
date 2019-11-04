@@ -32,6 +32,8 @@ public class Attachment extends AuditEvent implements Serializable {
 
     private boolean deleted = false;
 
+    private Long projectId;
+
     @Column(name = "task_id")
     private Long taskId;
 

@@ -15,10 +15,7 @@ import vn.ptit.pms.exception.BadRequestException;
 import vn.ptit.pms.repository.UserInvitationRepository;
 import vn.ptit.pms.repository.UserProjectRepository;
 import vn.ptit.pms.repository.UserRepository;
-import vn.ptit.pms.service.dto.InvitationRequestDto;
-import vn.ptit.pms.service.dto.InvitationResponseDto;
-import vn.ptit.pms.service.dto.NotificationDto;
-import vn.ptit.pms.service.dto.UserInvitationDto;
+import vn.ptit.pms.service.dto.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +123,8 @@ public class UserInvitationService {
                     } else {
                         log.info("Email {} has already in project", email);
                     }
+                } else {
+                    // send mail to unregistered user
                 }
             });
         } else {
@@ -140,7 +139,7 @@ public class UserInvitationService {
             if (userInvitation.getStatus().equals(InvitationStatus.NO_ACTION)) {
                 UserInvitationDto dto = new UserInvitationDto();
                 User inviter = userRepository.findById(userInvitation.getInvitation().getCreatedBy()).get();
-                dto.setInviter(inviter.getFirstName() + " " + inviter.getLastName());
+                dto.setInviter(new UserDto(inviter));
                 dto.setInvitation(userInvitation.getInvitation());
                 dto.setProject(userInvitation.getInvitation().getProject());
                 result.add(dto);

@@ -58,8 +58,10 @@ public class ProjectResource {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<?> get(@PathVariable Long id) {
+    public ResponseEntity<?> get(@PathVariable Long id, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to get {} : {}", ENTITY_NAME, id);
+        if (!userProjectService.isUserInProject(userPrincipal.getId(), id))
+            return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(projectService.getOneById(id));
     }
 
@@ -71,19 +73,23 @@ public class ProjectResource {
     }
 
     @GetMapping("/get-task/{projectId}")
-    public ResponseEntity<?> getProjectTask(@PathVariable Long projectId) {
+    public ResponseEntity<?> getProjectTask(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to get tasks of {} : {}", ENTITY_NAME, projectId);
+        if (!userProjectService.isUserInProject(userPrincipal.getId(), projectId))
+            return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(projectService.getProjectTask(projectId, false));
     }
 
     @GetMapping("/get-task/archived/{projectId}")
-    public ResponseEntity<?> getProjectTaskArchived(@PathVariable Long projectId) {
+    public ResponseEntity<?> getProjectTaskArchived(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to get tasks of {} : {}", ENTITY_NAME, projectId);
+        if (!userProjectService.isUserInProject(userPrincipal.getId(), projectId))
+            return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(projectService.getProjectTask(projectId, true));
     }
 
     @GetMapping("/check-project-admin/{projectId}")
-    public boolean checkProjectAdmin(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal){
+    public boolean checkProjectAdmin(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         return projectService.checkProjectAdmin(projectId, userPrincipal.getId());
     }
 }

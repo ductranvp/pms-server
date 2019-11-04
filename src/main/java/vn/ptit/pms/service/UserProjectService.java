@@ -10,10 +10,12 @@ import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.UserProjectRepository;
 import vn.ptit.pms.repository.UserRepository;
 import vn.ptit.pms.service.dto.TotalUserProjectDto;
+import vn.ptit.pms.service.dto.UserDto;
 import vn.ptit.pms.service.dto.UserProjectDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserProjectService {
@@ -24,6 +26,14 @@ public class UserProjectService {
     UserService userService;
     @Autowired
     UserRepository userRepository;
+
+    public boolean isUserInProject(Long userId, Long projectId) {
+        return userProjectRepository.findById(new UserProjectKey(userId, projectId)).isPresent();
+    }
+
+    public boolean isUserProjectInRole(Long userId, Long projectId, ProjectRole role) {
+        return userProjectRepository.findByProjectIdAndUserIdAndRole(projectId, userId, role) != null;
+    }
 
     public UserProject save(UserProject entity) {
         return userProjectRepository.save(entity);
@@ -70,6 +80,11 @@ public class UserProjectService {
             users.add(dto);
         });
         return users;
+    }
+
+    public List<UserDto> getListUserOfProject(Long projectId){
+        List<UserProject> list = getByProjectId(projectId);
+        return list.stream().map(userProject -> new UserDto(userProject.getUser())).collect(Collectors.toList());
     }
 
     public List<Project> getProjectByCurrentUser() {
@@ -146,5 +161,9 @@ public class UserProjectService {
         result.setMember(member);
         result.setClosed(closed);
         return result;
+    }
+
+    public UserProjectDto updateUserProject(UserProjectDto dto) {
+        return UserProjectDto.valueOf(userProjectRepository.save(dto.toEntity()));
     }
 }

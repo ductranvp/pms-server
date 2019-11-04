@@ -9,6 +9,7 @@ import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.CommentRepository;
 import vn.ptit.pms.service.dto.CommentDto;
 import vn.ptit.pms.service.dto.NotificationDto;
+import vn.ptit.pms.service.dto.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ public class CommentService {
 
     @Autowired
     AttachmentService attachmentService;
-
+    @Autowired
+    UserService userService;
     @Autowired
     private NotificationService notificationService;
     @Autowired
@@ -31,8 +33,6 @@ public class CommentService {
     private TaskService taskService;
     @Autowired
     private UserTaskService userTaskService;
-    @Autowired
-    UserService userService;
 
     public CommentDto create(CommentDto dto, List<MultipartFile> files) {
         CommentDto result = new CommentDto();
@@ -40,7 +40,7 @@ public class CommentService {
         result.updateAttrFromEntity(savedComment);
         List<Attachment> attachments = new ArrayList<>();
         for (MultipartFile file : files) {
-            attachments.add(attachmentService.save(null, result.getId(), file));
+            attachments.add(attachmentService.save(null, null, result.getId(), file));
         }
         result.setAttachments(attachments);
 
@@ -48,7 +48,7 @@ public class CommentService {
         Notification savedNotification = notificationService.save(NotificationDto.comment(dto.getTaskId()));
         List<User> users = userTaskService.getListUserOfTask(dto.getTaskId());
         users.forEach(user -> {
-            if (user.getId() != currentUser.getId()){
+            if (user.getId() != currentUser.getId()) {
                 /* Create notification for user */
                 UserNotificationKey key = new UserNotificationKey(user.getId(), savedNotification.getId());
                 userNotificationService.save(new UserNotification(key));
@@ -59,21 +59,33 @@ public class CommentService {
     }
 
     public List<CommentDto> getTaskComments(Long taskId) {
-        List<Comment> comments = commentRepository.findByTaskId(taskId);
-        return comments.stream().map(comment -> CommentDto.valueOf(comment)).collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findByTaskIdOrderByCreatedDateDesc(taskId);
+        return comments.stream().map(comment -> {
+            UserDto userDto = new UserDto(userService.getUserById(comment.getCreatedBy()));
+            List<Attachment> attachments = attachmentService.getByCommentId(comment.getId());
+            CommentDto dto = new CommentDto(comment);
+            dto.setAttachments(attachments);
+            dto.setAuthor(userDto);
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     public CommentDto update(CommentDto dto, List<MultipartFile> files) {
         dto.setEdited(true);
-        commentRepository.save(dto.convertToEntity());
+        Comment comment = dto.convertToEntity();
+        Comment saved = commentRepository.save(dto.convertToEntity());
         for (Attachment att : dto.getRemoveAttachments()) {
             attachmentService.delete(att.getId());
         }
         for (MultipartFile file : files) {
-            attachmentService.save(null, dto.getId(), file);
+            attachmentService.save(null, null, dto.getId(), file);
         }
         dto.setRemoveAttachments(new ArrayList<>());
         dto.setAttachments(attachmentService.getByCommentId(dto.getId()));
+
+        UserDto userDto = new UserDto(userService.getUserById(saved.getLastModifiedBy()));
+        dto.setAuthor(userDto);
+
         return dto;
     }
 

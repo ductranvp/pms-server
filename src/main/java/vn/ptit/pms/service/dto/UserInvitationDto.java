@@ -10,7 +10,7 @@ import vn.ptit.pms.domain.Project;
 @ToString
 @EqualsAndHashCode
 public class UserInvitationDto {
-    private String inviter;
+    private UserDto inviter;
     private Project project;
     private Invitation invitation;
 }

@@ -52,11 +52,11 @@ public class Task extends AuditEvent implements Serializable {
     @JsonIgnore
     private boolean reminded = false;
 
-    @JsonIgnore
-    private boolean deleted = false;
-
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
+
+    @JsonIgnore
+    private boolean deleted = false;
 
     public Task(Long taskId) {
         this.id = taskId;

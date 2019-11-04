@@ -20,7 +20,7 @@ public class CommentResource {
     CommentService commentService;
 
     @PostMapping("/create")
-    public ResponseEntity<CommentDto> create(@RequestPart("entity") CommentDto dto,
+    public ResponseEntity<CommentDto> create(@RequestPart("dto") CommentDto dto,
                                              @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         log.info("REST request to create {}", ENTITY_NAME);
         if (dto.getId() != null) {
@@ -36,7 +36,7 @@ public class CommentResource {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<CommentDto> update(@RequestPart("entity") CommentDto dto,
+    public ResponseEntity<CommentDto> update(@RequestPart("dto") CommentDto dto,
                                              @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         log.info("REST request to update {}", ENTITY_NAME);
         if (dto.getId() == null) {

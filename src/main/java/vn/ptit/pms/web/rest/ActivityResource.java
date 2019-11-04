@@ -20,14 +20,14 @@ public class ActivityResource {
     @Autowired
     private ActivityService activityService;
 
-    @PostMapping("/create")
-    public ResponseEntity<Activity> create(@RequestBody Activity activity) {
-        log.info("REST request to create {}: {}", ENTITY_NAME, activity);
-        if (activity.getId() != null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(activityService.save(activity));
-    }
+//    @PostMapping("/create")
+//    public ResponseEntity<Activity> create(@RequestBody Activity activity) {
+//        log.info("REST request to create {}: {}", ENTITY_NAME, activity);
+//        if (activity.getId() != null) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//        return ResponseEntity.ok(activityService.save(activity));
+//    }
 
     @GetMapping("/task/{taskId}")
     public ResponseEntity<List<ActivityDto>> getTaskActivities(@PathVariable Long taskId) {
@@ -35,31 +35,31 @@ public class ActivityResource {
         return ResponseEntity.ok(activityService.getByTaskId(taskId));
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<Activity>> getAll() {
-        log.info("REST request to get list {}", ENTITY_NAME);
-        return ResponseEntity.ok(activityService.getAll());
-    }
-
-    @GetMapping("/get/{id}")
-    public ResponseEntity<Activity> get(@PathVariable Long id) {
-        log.info("REST request to get {}: {}", ENTITY_NAME, id);
-        return ResponseEntity.ok(activityService.getOneById(id));
-    }
-
-    @PutMapping("/update")
-    public ResponseEntity<Activity> update(@RequestBody Activity activity) {
-        log.info("REST request to update {}: {}", ENTITY_NAME, activity);
-        if (activity.getId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(activityService.save(activity));
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        log.info("REST request to delete {}: {}", ENTITY_NAME, id);
-        activityService.delete(id);
-        return ResponseEntity.ok().build();
-    }
+//    @GetMapping("/list")
+//    public ResponseEntity<List<Activity>> getAll() {
+//        log.info("REST request to get list {}", ENTITY_NAME);
+//        return ResponseEntity.ok(activityService.getAll());
+//    }
+//
+//    @GetMapping("/get/{id}")
+//    public ResponseEntity<Activity> get(@PathVariable Long id) {
+//        log.info("REST request to get {}: {}", ENTITY_NAME, id);
+//        return ResponseEntity.ok(activityService.getOneById(id));
+//    }
+//
+//    @PutMapping("/update")
+//    public ResponseEntity<Activity> update(@RequestBody Activity activity) {
+//        log.info("REST request to update {}: {}", ENTITY_NAME, activity);
+//        if (activity.getId() == null) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//        return ResponseEntity.ok(activityService.save(activity));
+//    }
+//
+//    @DeleteMapping("/delete/{id}")
+//    public ResponseEntity<Void> delete(@PathVariable Long id) {
+//        log.info("REST request to delete {}: {}", ENTITY_NAME, id);
+//        activityService.delete(id);
+//        return ResponseEntity.ok().build();
+//    }
 }

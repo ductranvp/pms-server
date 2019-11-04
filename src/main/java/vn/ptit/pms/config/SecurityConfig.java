@@ -75,6 +75,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-ui.html",
                 "/webjars/**",
                 "/csrf",
+                // Resource
+                "/attachment/**",
+                "/avatar/**",
                 // other public endpoints of your API may be appended to this array
                 "/api/account/init",
                 "/api/account/authenticate",

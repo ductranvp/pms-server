@@ -3,6 +3,7 @@ package vn.ptit.pms.service.dto;
 import lombok.*;
 import vn.ptit.pms.domain.User;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,5 +33,18 @@ public class UserDto {
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
         this.authorities = user.getAuthorities().stream().map(Authority -> Authority.getName().name()).collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDto userDto = (UserDto) o;
+        return Objects.equals(id, userDto.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
