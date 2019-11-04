@@ -32,8 +32,10 @@ public class TaskDto {
     private Long categoryId;
     /* Additional */
     private UserDto creator;
-    private List<UserDto> users = new ArrayList<>();
+    private List<UserDto> assignedUsers = new ArrayList<>();
     private List<UserDto> unassignedUsers = new ArrayList<>();
+    private List<Long> assignUserIds = new ArrayList<>();
+    private List<Long> removeAssignUserIds = new ArrayList<>();
     private List<Attachment> attachments = new ArrayList<>();
     private List<Attachment> removeAttachments = new ArrayList<>();
 
@@ -59,13 +61,13 @@ public class TaskDto {
     public Task updateAttribute(Task task){
         task.setName(name);
         task.setDescription(description);
-        task.setPos(pos);
+//        task.setPos(pos);
         task.setPriority(priority);
-        task.setProgress(progress);
+//        task.setProgress(progress);
         task.setEstimateStartDate(estimateStartDate);
         task.setEstimateEndDate(estimateEndDate);
-        task.setStatus(status);
-        task.setCategoryId(categoryId);
+//        task.setStatus(status);
+//        task.setCategoryId(categoryId);
         return task;
     }
 

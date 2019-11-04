@@ -1,6 +1,7 @@
 package vn.ptit.pms.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.ptit.pms.domain.Attachment;
@@ -10,6 +11,7 @@ import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.TaskRepository;
 import vn.ptit.pms.repository.UserTaskRepository;
 import vn.ptit.pms.service.dto.ActivityDto;
+import vn.ptit.pms.service.dto.AssignTaskDto;
 import vn.ptit.pms.service.dto.TaskDto;
 import vn.ptit.pms.service.dto.UserDto;
 
@@ -37,6 +39,8 @@ public class TaskService {
     ProjectService projectService;
     @Autowired
     UserProjectService userProjectService;
+    @Autowired
+    UserTaskService userTaskService;
 
     public Task create(Task task) {
         Long categoryId = task.getCategoryId();
@@ -50,12 +54,17 @@ public class TaskService {
 
     @Transactional
     public void update(TaskDto dto, List<MultipartFile> files) {
+        Long taskId = dto.getId();
+        /* Attachments */
         for (Attachment att : dto.getRemoveAttachments()) {
             attachmentService.delete(att.getId());
         }
         for (MultipartFile file : files) {
-            attachmentService.save(null, dto.getId(), null, file);
+            attachmentService.save(null, taskId, null, file);
         }
+        /* Assign */
+        userTaskService.delete(new AssignTaskDto(taskId, dto.getRemoveAssignUserIds()));
+        userTaskService.save(new AssignTaskDto(taskId, dto.getAssignUserIds()));
 
         Task oldTask = taskRepository.findById(dto.getId()).get();
         if (!oldTask.getPriority().equals(dto.getPriority())) {
@@ -80,12 +89,12 @@ public class TaskService {
     public TaskDto getDtoById(Long taskId) {
         Task currentTask = taskRepository.findById(taskId).get();
         TaskDto dto = new TaskDto(currentTask);
-        dto.setUsers(userTaskRepository.findUserByTaskId(taskId));
+        dto.setAssignedUsers(userTaskRepository.findUserByTaskId(taskId));
         dto.setCreator(new UserDto(userService.getUserById(currentTask.getCreatedBy())));
         dto.setAttachments(attachmentService.getByTaskId(taskId));
         Category category = categoryService.getOneById(currentTask.getCategoryId());
         List<UserDto> userDtos = userProjectService.getListUserOfProject(category.getProjectId());
-        dto.getUsers().forEach(userDtos::remove);
+        dto.getAssignedUsers().forEach(userDtos::remove);
         dto.setUnassignedUsers(userDtos);
         return dto;
     }
@@ -95,7 +104,7 @@ public class TaskService {
         List<TaskDto> dtos = new ArrayList<>();
         for (Task task : tasks) {
             TaskDto dto = new TaskDto(task);
-            dto.setUsers(userTaskRepository.findUserByTaskId(task.getId()));
+            dto.setAssignedUsers(userTaskRepository.findUserByTaskId(task.getId()));
             dtos.add(dto);
         }
         return dtos;
@@ -120,5 +129,11 @@ public class TaskService {
         } catch (Exception e) {
             throw new AppException(ENTITY_NAME + " " + id + " could not be found");
         }
+    }
+
+    public void updateProgress(Long taskId, long progress) {
+        Task task = taskRepository.findById(taskId).get();
+        task.setProgress(progress);
+        taskRepository.save(task);
     }
 }

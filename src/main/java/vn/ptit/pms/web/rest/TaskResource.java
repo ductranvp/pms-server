@@ -78,6 +78,19 @@ public class TaskResource {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/update-progress")
+    public ResponseEntity<?> updateProgress(@RequestBody Task task,
+                                            @ApiIgnore @CurrentUser UserPrincipal userPrincipal){
+        log.info("REST request to update progress {}: {}", ENTITY_NAME, task);
+
+        Long projectId = taskService.getProjectIdByTaskId(task.getId());
+        Long userId = userPrincipal.getId();
+        if (!userProjectService.isUserInProject(userId, projectId))
+            return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
+        taskService.updateProgress(task.getId(), task.getProgress());
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/update-position")
     public ResponseEntity<?> updatePosition(@RequestBody Task task,
                                             @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
