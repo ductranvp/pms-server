@@ -8,9 +8,11 @@ import vn.ptit.pms.domain.User;
 import vn.ptit.pms.domain.enumeration.ActivityType;
 import vn.ptit.pms.repository.ActivityRepository;
 import vn.ptit.pms.service.dto.ActivityDto;
+import vn.ptit.pms.service.dto.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityService {
@@ -41,6 +43,10 @@ public class ActivityService {
 
     public List<ActivityDto> getByTaskId(Long taskId) {
         List<Activity> activities = activityRepository.findByTaskIdOrderByCreatedDateDesc(taskId);
-        return new ArrayList<>();
+        return activities.stream().map(activity -> {
+            ActivityDto dto = new ActivityDto(activity);
+            dto.setCreatedBy(new UserDto(userService.getUserById(activity.getCreatedBy())));
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

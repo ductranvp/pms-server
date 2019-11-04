@@ -1,7 +1,6 @@
 package vn.ptit.pms.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.ptit.pms.domain.Attachment;
@@ -133,6 +132,7 @@ public class TaskService {
 
     public void updateProgress(Long taskId, long progress) {
         Task task = taskRepository.findById(taskId).get();
+        activityService.save(ActivityDto.updateProgress(task.getId(), progress));
         task.setProgress(progress);
         taskRepository.save(task);
     }

@@ -13,12 +13,19 @@ import java.time.Instant;
 @EqualsAndHashCode(callSuper = false)
 public class ActivityDto {
     private Long id;
-    private String content;
     private ActivityType type;
     private Long taskId;
     private Object target;
     private UserDto createdBy;
     private Instant createdTime;
+
+    public ActivityDto(Activity activity) {
+        this.id = activity.getId();
+        this.type = activity.getType();
+        this.taskId = activity.getTaskId();
+        this.target = activity.getTarget();
+        this.createdTime = activity.getCreatedDate();
+    }
 
     public static Activity created(Long taskId) {
         Activity activity = new Activity();
