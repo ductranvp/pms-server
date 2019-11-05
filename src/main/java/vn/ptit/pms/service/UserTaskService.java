@@ -38,6 +38,7 @@ public class UserTaskService {
         Notification savedNotification = notificationService.save(NotificationDto.assignTask(dto.getTaskId()));
 
         for (Long userId : dto.getListUserId()) {
+
             activityService.save(ActivityDto.addMember(dto.getTaskId(), userId));
             UserTask userTask = new UserTask(new UserTaskKey(userId, dto.getTaskId()));
             userTaskRepository.save(userTask);
@@ -50,6 +51,7 @@ public class UserTaskService {
 
     public void delete(AssignTaskDto dto) {
         for (Long userId : dto.getListUserId()) {
+            activityService.save(ActivityDto.removeMember(dto.getTaskId(), userId));
             UserTask userTask = new UserTask(new UserTaskKey(userId, dto.getTaskId()));
             userTaskRepository.delete(userTask);
         }

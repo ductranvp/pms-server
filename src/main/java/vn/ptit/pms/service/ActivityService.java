@@ -3,14 +3,11 @@ package vn.ptit.pms.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ptit.pms.domain.Activity;
-import vn.ptit.pms.domain.Task;
-import vn.ptit.pms.domain.User;
 import vn.ptit.pms.domain.enumeration.ActivityType;
 import vn.ptit.pms.repository.ActivityRepository;
 import vn.ptit.pms.service.dto.ActivityDto;
 import vn.ptit.pms.service.dto.UserDto;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +42,8 @@ public class ActivityService {
         List<Activity> activities = activityRepository.findByTaskIdOrderByCreatedDateDesc(taskId);
         return activities.stream().map(activity -> {
             ActivityDto dto = new ActivityDto(activity);
+            if (activity.getType().equals(ActivityType.ADD_MEMBER) || activity.getType().equals(ActivityType.REMOVE_MEMBER))
+                dto.setTarget(new UserDto(userService.getUserById(Long.parseLong(activity.getTarget()))));
             dto.setCreatedBy(new UserDto(userService.getUserById(activity.getCreatedBy())));
             return dto;
         }).collect(Collectors.toList());

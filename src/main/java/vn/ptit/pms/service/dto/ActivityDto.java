@@ -42,10 +42,11 @@ public class ActivityDto {
         return activity;
     }
 
-    public static Activity joinTask(Long taskId){
+    public static Activity removeMember(Long taskId, Long target){
         Activity activity = new Activity();
-        activity.setType(ActivityType.JOIN_TASK);
+        activity.setType(ActivityType.REMOVE_MEMBER);
         activity.setTaskId(taskId);
+        activity.setTarget(String.valueOf(target));
         return activity;
     }
 
