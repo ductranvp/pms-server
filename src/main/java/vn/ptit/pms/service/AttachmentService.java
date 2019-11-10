@@ -11,12 +11,16 @@ import vn.ptit.pms.domain.UserNotification;
 import vn.ptit.pms.domain.key.UserNotificationKey;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.AttachmentRepository;
+import vn.ptit.pms.service.dto.AttachmentDto;
 import vn.ptit.pms.service.dto.NotificationDto;
+import vn.ptit.pms.service.dto.UserDto;
 import vn.ptit.pms.util.CommonConstants;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +46,7 @@ public class AttachmentService {
         Attachment attachment = new Attachment();
         attachment.setName(file.getOriginalFilename());
         attachment.setType(file.getContentType());
+        attachment.setProjectId(projectId);
         attachment.setTaskId(taskId);
         attachment.setCommentId(commentId);
         String fileName = UUID.randomUUID().toString() + getExtensionFile(file.getOriginalFilename());
@@ -65,6 +70,24 @@ public class AttachmentService {
             });
         }
         return attachmentRepository.save(attachment);
+    }
+
+    @Transactional
+    public void saveProjectAttachment(Long projectId, List<MultipartFile> files){
+        List<AttachmentDto> result = new ArrayList<>();
+        files.forEach(file -> {
+            save(projectId, null, null, file);
+        });
+    }
+
+    public List<AttachmentDto> getProjectAttachment(Long projectId){
+        List<AttachmentDto> result = new ArrayList<>();
+        attachmentRepository.findByProjectId(projectId).forEach(att -> {
+            AttachmentDto dto = new AttachmentDto(att);
+            dto.setCreatedBy(new UserDto(userService.getUserById(att.getCreatedBy())));
+            result.add(dto);
+        });
+        return result;
     }
 
     private String getExtensionFile(String fileName) {

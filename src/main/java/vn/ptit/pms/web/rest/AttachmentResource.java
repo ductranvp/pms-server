@@ -14,6 +14,7 @@ import vn.ptit.pms.security.UserPrincipal;
 import vn.ptit.pms.security.annotation.CurrentUser;
 import vn.ptit.pms.service.AttachmentService;
 import vn.ptit.pms.service.UserProjectService;
+import vn.ptit.pms.service.dto.AttachmentDto;
 import vn.ptit.pms.service.dto.core.ErrorEntity;
 
 import java.util.List;
@@ -42,16 +43,24 @@ public class AttachmentResource {
         return ResponseEntity.ok(attachmentService.save(projectId, taskId, commentId, file));
     }
 
+    @PostMapping("/project/upload")
+    public ResponseEntity<Void> upload(@RequestPart(value = "projectId") Long projectId,
+                                       @RequestPart("files") List<MultipartFile> files) {
+        log.info("REST request to upload project {}", ENTITY_NAME);
+        attachmentService.saveProjectAttachment(projectId, files);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/project/{projectId}")
     public ResponseEntity<?> getProjectAttachments(@PathVariable Long projectId,
-                                                                  @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+                                                   @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to get list {} by project id: {}", ENTITY_NAME, projectId);
 
         Long userId = userPrincipal.getId();
         if (!userProjectService.isUserInProject(userId, projectId))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
 
-        return ResponseEntity.ok(attachmentService.getByProjectId(projectId));
+        return ResponseEntity.ok(attachmentService.getProjectAttachment(projectId));
     }
 
 //    @GetMapping("/task/{taskId}")
