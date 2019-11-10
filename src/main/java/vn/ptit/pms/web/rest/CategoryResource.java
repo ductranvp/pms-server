@@ -51,6 +51,17 @@ public class CategoryResource {
         return ResponseEntity.ok(categoryService.updatePos(category));
     }
 
+    @PutMapping("/update-list")
+    public ResponseEntity<?> updateListPos(@RequestBody List<Category> list, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        log.info("REST request to update list {}", ENTITY_NAME);
+
+        Long userId = userPrincipal.getId();
+        if (!userProjectService.isUserProjectInRole(userId, list.get(0).getProjectId(), ProjectRole.ROLE_MANAGER))
+            return new ResponseEntity<>(ErrorEntity.forbidden("Access denied"), HttpStatus.FORBIDDEN);
+
+        return ResponseEntity.ok(categoryService.updateList(list));
+    }
+
     @PutMapping("/update-name")
     public ResponseEntity<?> updateName(@RequestBody Category category, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to update {}", ENTITY_NAME);

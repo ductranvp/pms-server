@@ -6,6 +6,7 @@ import vn.ptit.pms.domain.Category;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.CategoryRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -29,11 +30,20 @@ public class CategoryService {
         return categoryRepository.save(entityToUpdate);
     }
 
-    public void updateList(List<Category> categories){
-
+    public List<Category> updateList(List<Category> list) {
+        List<Category> result = new ArrayList<>();
+        int pos = INCREMENT - 1;
+        for (int i = 0; i < list.size(); i++) {
+            Category cat = list.get(i);
+            cat.setPos(pos);
+            categoryRepository.save(cat);
+            pos += INCREMENT;
+            result.add(cat);
+        }
+        return result;
     }
 
-    public Category updateName(Category category){
+    public Category updateName(Category category) {
         Category entityToUpdate = categoryRepository.getOne(category.getId());
         entityToUpdate.setName(category.getName());
         return categoryRepository.save(entityToUpdate);
