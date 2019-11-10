@@ -30,7 +30,7 @@ public class CategoryResource {
     private UserProjectService userProjectService;
 
     @PostMapping("/create")
-    public ResponseEntity create(@RequestBody Category category, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+    public ResponseEntity<?> create(@RequestBody Category category, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to create {}", ENTITY_NAME);
 
         Long userId = userPrincipal.getId();
@@ -40,17 +40,28 @@ public class CategoryResource {
         return ResponseEntity.ok(categoryService.create(category));
     }
 
-    @PutMapping("/update")
-    public ResponseEntity update(@RequestBody Category category, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+    @PutMapping("/update-pos")
+    public ResponseEntity<?> updatePos(@RequestBody Category category, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to update {}", ENTITY_NAME);
 
         Long userId = userPrincipal.getId();
         if (!userProjectService.isUserProjectInRole(userId, category.getProjectId(), ProjectRole.ROLE_MANAGER))
             return new ResponseEntity<>(ErrorEntity.forbidden("Access denied"), HttpStatus.FORBIDDEN);
 
-        return ResponseEntity.ok(categoryService.update(category));
+        return ResponseEntity.ok(categoryService.updatePos(category));
     }
-//
+
+    @PutMapping("/update-name")
+    public ResponseEntity<?> updateName(@RequestBody Category category, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        log.info("REST request to update {}", ENTITY_NAME);
+
+        Long userId = userPrincipal.getId();
+        if (!userProjectService.isUserProjectInRole(userId, category.getProjectId(), ProjectRole.ROLE_MANAGER))
+            return new ResponseEntity<>(ErrorEntity.forbidden("Access denied"), HttpStatus.FORBIDDEN);
+
+        return ResponseEntity.ok(categoryService.updateName(category));
+    }
+
 //    @GetMapping("/list")
 //    public ResponseEntity<List<Category>> getAll() {
 //        log.info("REST request to get list {}", ENTITY_NAME);
@@ -62,6 +73,11 @@ public class CategoryResource {
 //        log.info("REST request to get {}", ENTITY_NAME);
 //        return ResponseEntity.ok(categoryService.getOneById(id));
 //    }
+
+    @GetMapping("/get-by-project/{projectId}")
+    public ResponseEntity<?> getByProject(@PathVariable Long projectId){
+        return ResponseEntity.ok(categoryService.getByProjectId(projectId, false));
+    }
 
     @PutMapping("/archive/{id}")
     public ResponseEntity<Void> archive(@PathVariable Long id) {

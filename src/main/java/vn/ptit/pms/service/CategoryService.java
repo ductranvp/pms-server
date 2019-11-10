@@ -23,11 +23,20 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public Category update(Category category) {
-        if (category.isArchived()) {
-            category.setPos(-1);
-        }
-        return categoryRepository.save(category);
+    public Category updatePos(Category category) {
+        Category entityToUpdate = categoryRepository.getOne(category.getId());
+        entityToUpdate.setPos(category.getPos());
+        return categoryRepository.save(entityToUpdate);
+    }
+
+    public void updateList(List<Category> categories){
+
+    }
+
+    public Category updateName(Category category){
+        Category entityToUpdate = categoryRepository.getOne(category.getId());
+        entityToUpdate.setName(category.getName());
+        return categoryRepository.save(entityToUpdate);
     }
 
     public Category getOneById(Long id) {
