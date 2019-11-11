@@ -33,7 +33,7 @@ public class UserProjectResource {
 
     @GetMapping("/project/{projectId}")
     public ResponseEntity<?> getUserProjectByProjectId(@PathVariable Long projectId,
-                                                                          @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+                                                       @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getId();
         if (!userProjectService.isUserInProject(userId, projectId))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
@@ -77,7 +77,9 @@ public class UserProjectResource {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> delete(@RequestParam("userId") Long userId, @RequestParam("projectId") Long projectId) {
+    public ResponseEntity<?> delete(@RequestParam("userId") Long userId, @RequestParam("projectId") Long projectId) {
+        if (userProjectService.isLastAdmin(new UserProjectKey(userId, projectId)))
+            return new ResponseEntity<>(ErrorEntity.badRequest("You can't leave project because you are the last project manager"), HttpStatus.FORBIDDEN);
         userProjectService.delete(new UserProjectKey(userId, projectId));
         return ResponseEntity.ok().build();
     }

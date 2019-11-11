@@ -47,6 +47,7 @@ public class ProjectService {
     UserProjectRepository userProjectRepository;
 
     public Project save(Project project, UserPrincipal userPrincipal) {
+        project.setVerifyTask(true);
         Project savedProject = projectRepository.save(project);
         UserProject userProject = new UserProject(new UserProjectKey(userPrincipal.getId(), savedProject.getId()));
         userProject.setRole(ProjectRole.ROLE_MANAGER);
@@ -100,5 +101,17 @@ public class ProjectService {
 
     public boolean checkProjectAdmin(Long projectId, Long userId) {
         return userProjectRepository.findByProjectIdAndUserIdAndRole(projectId, userId, ProjectRole.ROLE_MANAGER) != null;
+    }
+
+    public void turnOnVerification(Long projectId){
+        Project project = projectRepository.getOne(projectId);
+        project.setVerifyTask(true);
+        projectRepository.save(project);
+    }
+
+    public void turnOffVerification(Long projectId){
+        Project project = projectRepository.getOne(projectId);
+        project.setVerifyTask(false);
+        projectRepository.save(project);
     }
 }

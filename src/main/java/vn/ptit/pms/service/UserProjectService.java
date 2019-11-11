@@ -26,6 +26,8 @@ public class UserProjectService {
     UserService userService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    ProjectService projectService;
 
     public boolean isUserInProject(Long userId, Long projectId) {
         return userProjectRepository.findById(new UserProjectKey(userId, projectId)).isPresent();
@@ -61,6 +63,13 @@ public class UserProjectService {
 
     public void delete(UserProjectKey id) {
         userProjectRepository.deleteById(id);
+    }
+
+    public boolean isLastAdmin(UserProjectKey id){
+        List<UserProject> list = userProjectRepository.findByProjectIdAndRole(id.getProjectId(), ProjectRole.ROLE_MANAGER);
+        boolean isAdmin = projectService.checkProjectAdmin(id.getProjectId(), id.getUserId());
+        if (isAdmin && list.size() == 1) return true;
+        return false;
     }
 
     public void addUserToProject(Long userId, Long projectId) {

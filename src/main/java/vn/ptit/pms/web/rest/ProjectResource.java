@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 import vn.ptit.pms.domain.Project;
+import vn.ptit.pms.domain.enumeration.ProjectRole;
 import vn.ptit.pms.security.UserPrincipal;
 import vn.ptit.pms.security.annotation.CurrentUser;
 import vn.ptit.pms.service.ProjectService;
@@ -92,4 +93,24 @@ public class ProjectResource {
     public boolean checkProjectAdmin(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         return projectService.checkProjectAdmin(projectId, userPrincipal.getId());
     }
+
+    @PutMapping("/turn-on-verification")
+    public ResponseEntity<?> turnOnVerification(@RequestBody Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getId();
+        if (!userProjectService.isUserProjectInRole(userId, projectId, ProjectRole.ROLE_MANAGER))
+            return new ResponseEntity<>(ErrorEntity.forbidden("Access denied"), HttpStatus.FORBIDDEN);
+        projectService.turnOnVerification(projectId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/turn-off-verification")
+    public ResponseEntity<?> turnOffVerification(@RequestBody Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getId();
+        if (!userProjectService.isUserProjectInRole(userId, projectId, ProjectRole.ROLE_MANAGER))
+            return new ResponseEntity<>(ErrorEntity.forbidden("Access denied"), HttpStatus.FORBIDDEN);
+        projectService.turnOffVerification(projectId);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

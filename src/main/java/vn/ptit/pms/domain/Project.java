@@ -28,6 +28,8 @@ public class Project extends AuditEvent implements Serializable {
 
     private boolean closed = false;
 
+    private boolean verifyTask = true;
+
     private boolean deleted = false;
 
     public Project(Long projectId) {
