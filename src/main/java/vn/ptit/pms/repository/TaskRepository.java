@@ -18,6 +18,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByCategoryIdOrderByPosDesc(Long categoryId);
 
+    @Query(value = "SELECT * FROM task", nativeQuery = true)
+    List<Task> findByFilter(Long categoryId, String priority, String userIds, boolean overdue);
+
     @Query(value = "SELECT MAX(pos) FROM task WHERE category_id = ?1 AND status = 'NO_PROGRESS'", nativeQuery = true)
     Integer getLastTaskPos(Long categoryId);
 

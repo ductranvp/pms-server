@@ -9,13 +9,15 @@ import vn.ptit.pms.domain.Task;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.TaskRepository;
 import vn.ptit.pms.repository.UserTaskRepository;
-import vn.ptit.pms.service.dto.ActivityDto;
-import vn.ptit.pms.service.dto.AssignTaskDto;
-import vn.ptit.pms.service.dto.TaskDto;
-import vn.ptit.pms.service.dto.UserDto;
+import vn.ptit.pms.service.dto.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -40,6 +42,8 @@ public class TaskService {
     UserProjectService userProjectService;
     @Autowired
     UserTaskService userTaskService;
+    @PersistenceContext
+    EntityManager em;
 
     public Task create(Task task) {
         Long categoryId = task.getCategoryId();
@@ -98,8 +102,83 @@ public class TaskService {
         return dto;
     }
 
-    public List<TaskDto> getDtoByCategoryId(Long categoryId) {
-        List<Task> tasks = taskRepository.findByCategoryIdOrderByPosAsc(categoryId);
+    public List<Task> getTaskByFilter(Long categoryId, TaskFilterDto dto) {
+        String priorityFilter = "";
+        String userIdFilter = "";
+        for (String priority : dto.getPriorities()) {
+            priorityFilter += "'" + priority + "',";
+        }
+
+        for (Long userId : dto.getUserIds()) {
+            userIdFilter += userId + ",";
+        }
+
+        String noFilter = "SELECT DISTINCT t.* FROM task t " +
+                "WHERE t.deleted = FALSE " +
+                "AND t.category_id = " + categoryId;
+
+        String hasFilter = "SELECT DISTINCT t.* FROM task t " +
+                "LEFT JOIN user_task ut on t.id = ut.task_id " +
+                "WHERE t.deleted = FALSE " +
+                "AND t.category_id = " + categoryId;
+
+//        if (dto.getOverdue() != null) {
+//            noFilter += " AND t.overdue = " + dto.getOverdue();
+//            hasFilter += " AND t.overdue = " + dto.getOverdue();
+//        }
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        if (dto.getStartDate() != null) {
+            Date myDate = Date.from(dto.getStartDate());
+            String formattedDate = formatter.format(myDate);
+            noFilter += " AND t.estimate_start_date >= '" + formattedDate + "'";
+            hasFilter += " AND t.estimate_start_date >= '" + formattedDate + "'";
+        }
+
+        if (dto.getEndDate() != null) {
+            Date myDate = Date.from(dto.getEndDate());
+            String formattedDate = formatter.format(myDate);
+            noFilter += " AND t.estimate_end_date <= '" + formattedDate + "'";
+            hasFilter += " AND t.estimate_end_date <= '" + formattedDate + "'";
+        }
+
+
+        if (dto.getSearchText() != null) {
+            noFilter += " AND t.name LIKE '%" + dto.getSearchText() + "%'";
+        }
+
+        Query query;
+        if (dto.getPriorities().isEmpty() && dto.getUserIds().isEmpty()) {
+            noFilter += " ORDER BY t.pos ASC";
+            query = em.createNativeQuery(noFilter, Task.class);
+        } else {
+            if (dto.getPriorities().isEmpty()) {
+                userIdFilter = userIdFilter.substring(0, userIdFilter.length() - 1);
+                hasFilter += " AND ut.user_id IN (" + userIdFilter + ")";
+                hasFilter += " ORDER BY t.pos ASC";
+                query = em.createNativeQuery(hasFilter, Task.class);
+            } else if (dto.getUserIds().isEmpty()) {
+                priorityFilter = priorityFilter.substring(0, priorityFilter.length() - 1);
+                hasFilter += " AND t.priority IN (" + priorityFilter + ")";
+                hasFilter += " ORDER BY t.pos ASC";
+                query = em.createNativeQuery(hasFilter, Task.class);
+            } else {
+                userIdFilter = userIdFilter.substring(0, userIdFilter.length() - 1);
+                priorityFilter = priorityFilter.substring(0, priorityFilter.length() - 1);
+
+                hasFilter += " AND ut.user_id IN (" + userIdFilter + ")";
+                hasFilter += " AND t.priority IN (" + priorityFilter + ")";
+                hasFilter += " ORDER BY t.pos ASC";
+                query = em.createNativeQuery(hasFilter, Task.class);
+            }
+        }
+        List<Task> result = query.getResultList();
+        return result;
+    }
+
+    public List<TaskDto> getDtoByCategoryId(Long categoryId, TaskFilterDto filter) {
+        List<Task> tasks = getTaskByFilter(categoryId, filter);
         List<TaskDto> dtos = new ArrayList<>();
         for (Task task : tasks) {
             TaskDto dto = new TaskDto(task);

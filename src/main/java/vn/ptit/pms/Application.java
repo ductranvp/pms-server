@@ -18,10 +18,10 @@ import java.util.TimeZone;
 @EnableScheduling
 public class Application {
 
-    @PostConstruct
-    void init() {
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    }
+//    @PostConstruct
+//    void init() {
+//        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+//    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

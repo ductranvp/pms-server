@@ -14,9 +14,11 @@ import vn.ptit.pms.security.annotation.CurrentUser;
 import vn.ptit.pms.service.ProjectService;
 import vn.ptit.pms.service.UserProjectService;
 import vn.ptit.pms.service.UserService;
+import vn.ptit.pms.service.dto.TaskFilterDto;
 import vn.ptit.pms.service.dto.core.ErrorEntity;
 
 import javax.transaction.Transactional;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -73,20 +75,21 @@ public class ProjectResource {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/get-task/{projectId}")
-    public ResponseEntity<?> getProjectTask(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
-        log.info("REST request to get tasks of {} : {}", ENTITY_NAME, projectId);
-        if (!userProjectService.isUserInProject(userPrincipal.getId(), projectId))
+    @PostMapping("/get-task")
+    public ResponseEntity<?> getProjectTask(@RequestBody TaskFilterDto dto,
+                                            @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        log.info("REST request to get tasks of {} : {}", ENTITY_NAME, dto.getProjectId());
+        if (!userProjectService.isUserInProject(userPrincipal.getId(), dto.getProjectId()))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
-        return ResponseEntity.ok(projectService.getProjectTask(projectId, false));
+        return ResponseEntity.ok(projectService.getProjectTask(dto.getProjectId(), false, dto));
     }
 
-    @GetMapping("/get-task/archived/{projectId}")
-    public ResponseEntity<?> getProjectTaskArchived(@PathVariable Long projectId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
-        log.info("REST request to get tasks of {} : {}", ENTITY_NAME, projectId);
-        if (!userProjectService.isUserInProject(userPrincipal.getId(), projectId))
+    @PostMapping("/get-task/archived")
+    public ResponseEntity<?> getProjectTaskArchived(@RequestBody TaskFilterDto dto, @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        log.info("REST request to get tasks of {} : {}", ENTITY_NAME, dto.getProjectId());
+        if (!userProjectService.isUserInProject(userPrincipal.getId(), dto.getProjectId()))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
-        return ResponseEntity.ok(projectService.getProjectTask(projectId, true));
+        return ResponseEntity.ok(projectService.getProjectTask(dto.getProjectId(), true, new TaskFilterDto()));
     }
 
     @GetMapping("/check-project-admin/{projectId}")

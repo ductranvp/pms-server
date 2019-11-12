@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ptit.pms.domain.Category;
 import vn.ptit.pms.domain.Project;
-import vn.ptit.pms.domain.Task;
 import vn.ptit.pms.domain.UserProject;
 import vn.ptit.pms.domain.enumeration.ProjectRole;
 import vn.ptit.pms.domain.enumeration.TaskStatus;
@@ -18,6 +17,7 @@ import vn.ptit.pms.security.UserPrincipal;
 import vn.ptit.pms.service.dto.CategoryTaskDto;
 import vn.ptit.pms.service.dto.ProjectTaskDto;
 import vn.ptit.pms.service.dto.TaskDto;
+import vn.ptit.pms.service.dto.TaskFilterDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +77,7 @@ public class ProjectService {
         }
     }
 
-    public ProjectTaskDto getProjectTask(Long projectId, boolean isCategoryArchived) {
+    public ProjectTaskDto getProjectTask(Long projectId, boolean isCategoryArchived, TaskFilterDto dto) {
         ProjectTaskDto result = new ProjectTaskDto();
         result.setInfo(projectRepository.findById(projectId).get());
 
@@ -86,7 +86,7 @@ public class ProjectService {
         categories.forEach(category -> {
             CategoryTaskDto categoryTaskDto = new CategoryTaskDto();
             categoryTaskDto.setInfo(category);
-            List<TaskDto> tasks = taskService.getDtoByCategoryId(category.getId());
+            List<TaskDto> tasks = taskService.getDtoByCategoryId(category.getId(), dto);
             categoryTaskDto.setNoProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.NO_PROGRESS)).collect(Collectors.toList()));
             categoryTaskDto.setInProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.IN_PROGRESS)).collect(Collectors.toList()));
             categoryTaskDto.setCompleted(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.COMPLETED)).collect(Collectors.toList()));
@@ -103,13 +103,13 @@ public class ProjectService {
         return userProjectRepository.findByProjectIdAndUserIdAndRole(projectId, userId, ProjectRole.ROLE_MANAGER) != null;
     }
 
-    public void turnOnVerification(Long projectId){
+    public void turnOnVerification(Long projectId) {
         Project project = projectRepository.getOne(projectId);
         project.setVerifyTask(true);
         projectRepository.save(project);
     }
 
-    public void turnOffVerification(Long projectId){
+    public void turnOffVerification(Long projectId) {
         Project project = projectRepository.getOne(projectId);
         project.setVerifyTask(false);
         projectRepository.save(project);
