@@ -84,6 +84,16 @@ public class UserResource {
         return ResponseEntity.ok(optionalUser.get());
     }
 
+    @GetMapping("/user-info/{username}")
+    public ResponseEntity<?> getUserById(@PathVariable String username) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<>(ErrorEntity.notFound("Username could not be found!"),
+                    HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(new UserDto(optionalUser.get()));
+    }
+
     @GetMapping("/users/authorities")
     @Secured(AuthoritiesConstants.ADMIN)
     public List<String> getAuthorities() {

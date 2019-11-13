@@ -4,15 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 import vn.ptit.pms.domain.UserNotification;
 import vn.ptit.pms.security.UserPrincipal;
 import vn.ptit.pms.security.annotation.CurrentUser;
 import vn.ptit.pms.service.UserNotificationService;
+import vn.ptit.pms.service.dto.UserNotificationDto;
 
 import java.util.List;
 
@@ -50,14 +48,19 @@ public class UserNotificationResource {
 //    }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<UserNotification>> getUserNotifications(@PathVariable Long userId) {
+    public ResponseEntity<List<UserNotificationDto>> getUserNotifications(@PathVariable Long userId) {
         log.info("REST request to get list {} by user id: {}", ENTITY_NAME, userId);
         return ResponseEntity.ok(userNotificationService.getByUserId(userId));
     }
 
     @GetMapping("/current-user")
-    public ResponseEntity<List<UserNotification>> getCurrentUserNotification(@ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+    public ResponseEntity<List<UserNotificationDto>> getCurrentUserNotification(@ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to get list {} by current user: {}", ENTITY_NAME, userPrincipal.getId());
         return ResponseEntity.ok(userNotificationService.getByUserId(userPrincipal.getId()));
+    }
+
+    @PutMapping("/seen")
+    public void userSeenNotification(@RequestBody Long notificationId, @ApiIgnore @CurrentUser UserPrincipal userPrincipal){
+        userNotificationService.userSeenNotification(userPrincipal.getId(), notificationId);
     }
 }

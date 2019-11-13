@@ -36,7 +36,7 @@ public class UserTaskService {
 
     public void save(AssignTaskDto dto) {
         Notification savedNotification = notificationService.save(NotificationDto.assignTask(dto.getTaskId()));
-
+        Long currentUserId = userService.getCurrentUser().getId();
         for (Long userId : dto.getListUserId()) {
 
             activityService.save(ActivityDto.addMember(dto.getTaskId(), userId));
@@ -44,8 +44,10 @@ public class UserTaskService {
             userTaskRepository.save(userTask);
 
             /* Create notification for user */
-            UserNotificationKey key = new UserNotificationKey(userId, savedNotification.getId());
-            userNotificationService.save(new UserNotification(key));
+            if (!currentUserId.equals(userId)) {
+                UserNotificationKey key = new UserNotificationKey(userId, savedNotification.getId());
+                userNotificationService.save(new UserNotification(key));
+            }
         }
     }
 

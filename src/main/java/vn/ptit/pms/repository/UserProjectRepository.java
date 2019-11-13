@@ -20,4 +20,9 @@ public interface UserProjectRepository extends JpaRepository<UserProject, UserPr
     List<UserProject> findByProjectIdAndRole(Long projectId, ProjectRole role);
 
     UserProject findByProjectIdAndUserIdAndRole(Long projectId, Long userId, ProjectRole role);
+
+
+    @Query(value = "SELECT COUNT(DISTINCT up.user_id) FROM user_project up WHERE up.project_id = ?1", nativeQuery = true)
+    Long countByProjectId(Long projectId);
+
 }

@@ -175,4 +175,8 @@ public class UserProjectService {
     public UserProjectDto updateUserProject(UserProjectDto dto) {
         return UserProjectDto.valueOf(userProjectRepository.save(dto.toEntity()));
     }
+
+    public Long countProjectMember(Long projectId) {
+        return userProjectRepository.countByProjectId(projectId);
+    }
 }

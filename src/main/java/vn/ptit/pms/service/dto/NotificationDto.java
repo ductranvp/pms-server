@@ -15,6 +15,7 @@ public class NotificationDto {
     private Long id;
     private String content;
     private NotificationType type;
+    private Object target;
 
     public static Notification inviteToProject(Long target){
         Notification notification = new Notification();

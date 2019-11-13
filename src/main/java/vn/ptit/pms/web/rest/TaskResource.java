@@ -16,6 +16,7 @@ import vn.ptit.pms.security.annotation.CurrentUser;
 import vn.ptit.pms.service.CategoryService;
 import vn.ptit.pms.service.TaskService;
 import vn.ptit.pms.service.UserProjectService;
+import vn.ptit.pms.service.dto.TaskDrawerDto;
 import vn.ptit.pms.service.dto.TaskDto;
 import vn.ptit.pms.service.dto.core.ErrorEntity;
 
@@ -126,5 +127,11 @@ public class TaskResource {
 
         taskService.delete(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/get-drawer/{taskId}")
+    public ResponseEntity<TaskDrawerDto> getTaskDrawer(@PathVariable Long taskId,
+                                                       @ApiIgnore @CurrentUser UserPrincipal userPrincipal){
+        return ResponseEntity.ok(taskService.getTaskDrawer(taskId, userPrincipal.getId()));
     }
 }

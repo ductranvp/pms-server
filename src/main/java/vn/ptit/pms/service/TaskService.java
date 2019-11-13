@@ -215,4 +215,15 @@ public class TaskService {
         task.setProgress(progress);
         taskRepository.save(task);
     }
+
+    public TaskDrawerDto getTaskDrawer(Long taskId, Long userId){
+        Task task = taskRepository.getOne(taskId);
+        TaskDrawerDto dto = new TaskDrawerDto();
+        Category category = categoryService.getOneById(task.getCategoryId());
+        dto.setArchived(category.isArchived());
+        dto.setTaskId(taskId);
+        dto.setProjectId(category.getProjectId());
+        dto.setManager(projectService.checkProjectAdmin(category.getProjectId(), userId));
+        return dto;
+    }
 }

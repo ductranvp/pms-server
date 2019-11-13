@@ -56,6 +56,11 @@ public class UserProjectResource {
         return ResponseEntity.ok(userProjectService.getProjectByUsername(username));
     }
 
+    @GetMapping("/count-member/{projectId}")
+    public ResponseEntity<Long> countProjectMebmer(@PathVariable Long projectId){
+        return ResponseEntity.ok(userProjectService.countProjectMember(projectId));
+    }
+
     @GetMapping("/current-user/role-manager")
     public ResponseEntity<List<Project>> getProjectByCurrentUserWithRoleManager() {
         return ResponseEntity.ok(userProjectService.getProjectByCurrentUserWithRoleManager());
