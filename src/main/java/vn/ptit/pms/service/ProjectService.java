@@ -46,9 +46,15 @@ public class ProjectService {
     @Autowired
     UserProjectRepository userProjectRepository;
 
+    @Autowired
+    ProjectLogService projectLogService;
+
     public Project save(Project project, UserPrincipal userPrincipal) {
         project.setVerifyTask(true);
         Project savedProject = projectRepository.save(project);
+        /* Save log */
+        projectLogService.saveLog(savedProject.getId(), userPrincipal.getId());
+
         UserProject userProject = new UserProject(new UserProjectKey(userPrincipal.getId(), savedProject.getId()));
         userProject.setRole(ProjectRole.ROLE_MANAGER);
         userProjectService.save(userProject);
@@ -77,7 +83,10 @@ public class ProjectService {
         }
     }
 
-    public ProjectTaskDto getProjectTask(Long projectId, boolean isCategoryArchived, TaskFilterDto dto) {
+    public ProjectTaskDto getProjectTask(Long projectId, boolean isCategoryArchived, TaskFilterDto dto, UserPrincipal userPrincipal) {
+        /* Save log */
+        projectLogService.saveLog(projectId, userPrincipal.getId());
+
         ProjectTaskDto result = new ProjectTaskDto();
         result.setInfo(projectRepository.findById(projectId).get());
 
@@ -86,7 +95,7 @@ public class ProjectService {
         categories.forEach(category -> {
             CategoryTaskDto categoryTaskDto = new CategoryTaskDto();
             categoryTaskDto.setInfo(category);
-            List<TaskDto> tasks = taskService.getDtoByCategoryId(category.getId(), dto);
+            List<TaskDto> tasks = taskService.getDtoByCategoryIdWithFilter(category.getId(), dto);
             categoryTaskDto.setNoProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.NO_PROGRESS)).collect(Collectors.toList()));
             categoryTaskDto.setInProgress(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.IN_PROGRESS)).collect(Collectors.toList()));
             categoryTaskDto.setCompleted(tasks.stream().filter(task -> task.getStatus().equals(TaskStatus.COMPLETED)).collect(Collectors.toList()));

@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.ptit.pms.domain.audit.AuditEvent;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
@@ -15,8 +14,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectLog extends AuditEvent implements Serializable {
+    public static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long projectId;
     private Long userId;
-    private String type;
+
+    public ProjectLog(Long projectId, Long userId) {
+        this.projectId = projectId;
+        this.userId = userId;
+    }
 }

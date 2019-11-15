@@ -47,16 +47,22 @@ public class UserNotificationResource {
 //        return ResponseEntity.ok(userNotificationService.save(userNotification));
 //    }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<UserNotificationDto>> getUserNotifications(@PathVariable Long userId) {
-        log.info("REST request to get list {} by user id: {}", ENTITY_NAME, userId);
-        return ResponseEntity.ok(userNotificationService.getByUserId(userId));
-    }
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<UserNotificationDto>> getUserNotifications(@PathVariable Long userId) {
+//        log.info("REST request to get list {} by user id: {}", ENTITY_NAME, userId);
+//        return ResponseEntity.ok(userNotificationService.getByUserId(userId));
+//    }
 
     @GetMapping("/current-user")
     public ResponseEntity<List<UserNotificationDto>> getCurrentUserNotification(@ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to get list {} by current user: {}", ENTITY_NAME, userPrincipal.getId());
         return ResponseEntity.ok(userNotificationService.getByUserId(userPrincipal.getId()));
+    }
+
+    @GetMapping("/unseen")
+    public ResponseEntity<List<UserNotificationDto>> getUnseenNotification(@ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
+        log.info("REST request to get list {} by current user: {}", ENTITY_NAME, userPrincipal.getId());
+        return ResponseEntity.ok(userNotificationService.getUnseenNotification(userPrincipal.getId()));
     }
 
     @PutMapping("/seen")

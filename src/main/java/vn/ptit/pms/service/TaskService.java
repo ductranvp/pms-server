@@ -42,6 +42,10 @@ public class TaskService {
     UserProjectService userProjectService;
     @Autowired
     UserTaskService userTaskService;
+
+    @Autowired
+    TaskLogService taskLogService;
+
     @PersistenceContext
     EntityManager em;
 
@@ -89,7 +93,11 @@ public class TaskService {
         return taskRepository.findProjectIdByTaskId(taskId);
     }
 
-    public TaskDto getDtoById(Long taskId) {
+    public TaskDto getDtoById(Long taskId, Long userId, boolean isLoadLog) {
+        /*Save log*/
+        if (!isLoadLog)
+            taskLogService.saveLog(taskId, userId);
+
         Task currentTask = taskRepository.findById(taskId).get();
         TaskDto dto = new TaskDto(currentTask);
         dto.setAssignedUsers(userTaskRepository.findUserByTaskId(taskId));
@@ -177,7 +185,7 @@ public class TaskService {
         return result;
     }
 
-    public List<TaskDto> getDtoByCategoryId(Long categoryId, TaskFilterDto filter) {
+    public List<TaskDto> getDtoByCategoryIdWithFilter(Long categoryId, TaskFilterDto filter) {
         List<Task> tasks = getTaskByFilter(categoryId, filter);
         List<TaskDto> dtos = new ArrayList<>();
         for (Task task : tasks) {
@@ -216,7 +224,7 @@ public class TaskService {
         taskRepository.save(task);
     }
 
-    public TaskDrawerDto getTaskDrawer(Long taskId, Long userId){
+    public TaskDrawerDto getTaskDrawer(Long taskId, Long userId) {
         Task task = taskRepository.getOne(taskId);
         TaskDrawerDto dto = new TaskDrawerDto();
         Category category = categoryService.getOneById(task.getCategoryId());

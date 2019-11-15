@@ -58,7 +58,7 @@ public class TaskResource {
         if (!userProjectService.isUserInProject(userId, projectId))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
 
-        return ResponseEntity.ok(taskService.getDtoById(taskId));
+        return ResponseEntity.ok(taskService.getDtoById(taskId, userPrincipal.getId(), false));
     }
 
     /* Only for Project Manager */

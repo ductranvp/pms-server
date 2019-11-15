@@ -81,7 +81,7 @@ public class ProjectResource {
         log.info("REST request to get tasks of {} : {}", ENTITY_NAME, dto.getProjectId());
         if (!userProjectService.isUserInProject(userPrincipal.getId(), dto.getProjectId()))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
-        return ResponseEntity.ok(projectService.getProjectTask(dto.getProjectId(), false, dto));
+        return ResponseEntity.ok(projectService.getProjectTask(dto.getProjectId(), false, dto, userPrincipal));
     }
 
     @PostMapping("/get-task/archived")
@@ -89,7 +89,7 @@ public class ProjectResource {
         log.info("REST request to get tasks of {} : {}", ENTITY_NAME, dto.getProjectId());
         if (!userProjectService.isUserInProject(userPrincipal.getId(), dto.getProjectId()))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
-        return ResponseEntity.ok(projectService.getProjectTask(dto.getProjectId(), true, new TaskFilterDto()));
+        return ResponseEntity.ok(projectService.getProjectTask(dto.getProjectId(), true, new TaskFilterDto(), userPrincipal));
     }
 
     @GetMapping("/check-project-admin/{projectId}")

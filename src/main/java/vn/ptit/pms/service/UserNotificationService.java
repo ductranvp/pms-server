@@ -43,6 +43,19 @@ public class UserNotificationService {
         return result;
     }
 
+    public List<UserNotificationDto> getUnseenNotification(Long userId) {
+        List<UserNotification> list = userNotificationRepository.findByIdUserIdOrderByNotificationIdDesc(userId);
+        List<UserNotificationDto> result = new ArrayList<>();
+        for (UserNotification noti: list) {
+            if (noti.getStatus().equals(NotificationStatus.UNSEEN)){
+                UserNotificationDto dto = new UserNotificationDto(noti);
+                dto.setCreatedBy(new UserDto(userService.getUserById(noti.getNotification().getCreatedBy())));
+                result.add(dto);
+            }
+        }
+        return result;
+    }
+
     public void userSeenNotification(Long userId, Long notificationId) {
         UserNotification notification = userNotificationRepository.findById(new UserNotificationKey(userId, notificationId)).get();
         notification.setStatus(NotificationStatus.SEEN);
