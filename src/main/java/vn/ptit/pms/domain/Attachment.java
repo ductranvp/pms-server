@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.Where;
 import org.springframework.lang.Nullable;
 import vn.ptit.pms.domain.audit.AuditEvent;
+import vn.ptit.pms.domain.enumeration.AttachmentType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -25,6 +26,8 @@ public class Attachment extends AuditEvent implements Serializable {
 
     private String name;
 
+    private String description;
+
     @NotBlank
     private String url;
 
@@ -32,11 +35,8 @@ public class Attachment extends AuditEvent implements Serializable {
 
     private boolean deleted = false;
 
-    private Long projectId;
+    @Enumerated(value = EnumType.STRING)
+    private AttachmentType targetType;
 
-    @Column(name = "task_id")
-    private Long taskId;
-
-    @Column(name = "comment_id")
-    private Long commentId;
+    private Long targetId;
 }

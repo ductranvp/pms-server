@@ -40,7 +40,7 @@ public class CommentService {
         result.updateAttrFromEntity(savedComment);
         List<Attachment> attachments = new ArrayList<>();
         for (MultipartFile file : files) {
-            attachments.add(attachmentService.save(null, null, result.getId(), file));
+            attachments.add(attachmentService.save(null, null, result.getId(), false, null, file));
         }
         result.setAttachments(attachments);
 
@@ -78,7 +78,7 @@ public class CommentService {
             attachmentService.delete(att.getId());
         }
         for (MultipartFile file : files) {
-            attachmentService.save(null, null, dto.getId(), file);
+            attachmentService.save(null, null, dto.getId(), false, null, file);
         }
         dto.setRemoveAttachments(new ArrayList<>());
         dto.setAttachments(attachmentService.getByCommentId(dto.getId()));

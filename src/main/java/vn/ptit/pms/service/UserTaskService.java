@@ -59,6 +59,10 @@ public class UserTaskService {
         }
     }
 
+    public void deleteByUserId(Long userId){
+        userTaskRepository.deleteUserTask(userId);
+    }
+
     public List<Task> getListTaskOfUser(Long userId) {
         List<Task> result = new ArrayList<>();
         List<UserTask> userTasks = userTaskRepository.findByIdUserId(userId);

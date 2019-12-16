@@ -13,6 +13,7 @@ import vn.ptit.pms.service.dto.TotalUserProjectDto;
 import vn.ptit.pms.service.dto.UserDto;
 import vn.ptit.pms.service.dto.UserProjectDto;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ public class UserProjectService {
     UserRepository userRepository;
     @Autowired
     ProjectService projectService;
+    @Autowired
+    UserTaskService userTaskService;
 
     public boolean isUserInProject(Long userId, Long projectId) {
         return userProjectRepository.findById(new UserProjectKey(userId, projectId)).isPresent();
@@ -61,8 +64,10 @@ public class UserProjectService {
         return userProjectRepository.findAll();
     }
 
+    @Transactional
     public void delete(UserProjectKey id) {
         userProjectRepository.deleteById(id);
+        userTaskService.deleteByUserId(id.getUserId());
     }
 
     public boolean isLastAdmin(UserProjectKey id){

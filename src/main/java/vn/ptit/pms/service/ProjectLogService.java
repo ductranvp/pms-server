@@ -24,13 +24,14 @@ public class ProjectLogService {
     }
 
     public List<Project> getRecentProject(Long userId){
-        String sql = "SELECT DISTINCT p.* FROM project_log pl " +
-                "JOIN project p ON p.id = pl.project_id " +
+        String sql = "SELECT DISTINCT p.* FROM project p " +
+                "JOIN project_log pl ON p.id = pl.project_id " +
                 "WHERE pl.user_id = " + userId + " " +
                 "ORDER BY pl.id DESC LIMIT 6";
         Query query = em.createNativeQuery(sql, Project.class);
 
 //        return projectLogRepository.findRecentProject(userId);
-        return query.getResultList();
+        List<Project> result = query.getResultList();
+        return result;
     }
 }

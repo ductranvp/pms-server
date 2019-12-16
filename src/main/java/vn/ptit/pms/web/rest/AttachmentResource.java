@@ -35,19 +35,21 @@ public class AttachmentResource {
     public ResponseEntity<Attachment> create(@RequestPart(value = "projectId", required = false) Long projectId,
                                              @RequestPart(value = "taskId", required = false) Long taskId,
                                              @RequestPart(value = "commentId", required = false) Long commentId,
+                                             @RequestPart(value = "isTaskReport") boolean isTaskReport,
                                              @RequestPart("file") MultipartFile file) {
         log.info("REST request to create {}", ENTITY_NAME);
         if (projectId == null && taskId == null && commentId == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(attachmentService.save(projectId, taskId, commentId, file));
+        return ResponseEntity.ok(attachmentService.save(projectId, taskId, commentId, isTaskReport, null, file));
     }
 
     @PostMapping("/project/upload")
     public ResponseEntity<Void> upload(@RequestPart(value = "projectId") Long projectId,
+                                       @RequestPart(value = "description") String description,
                                        @RequestPart("files") List<MultipartFile> files) {
         log.info("REST request to upload project {}", ENTITY_NAME);
-        attachmentService.saveProjectAttachment(projectId, files);
+        attachmentService.saveProjectAttachment(projectId, description, files);
         return ResponseEntity.ok().build();
     }
 

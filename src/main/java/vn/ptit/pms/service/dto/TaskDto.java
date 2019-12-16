@@ -38,6 +38,8 @@ public class TaskDto {
     private List<Long> removeAssignUserIds = new ArrayList<>();
     private List<Attachment> attachments = new ArrayList<>();
     private List<Attachment> removeAttachments = new ArrayList<>();
+    private List<AttachmentDto> reports = new ArrayList<>();
+    private List<AttachmentDto> removeReports = new ArrayList<>();
 
     public Task toEntity(){
         Task task = new Task();

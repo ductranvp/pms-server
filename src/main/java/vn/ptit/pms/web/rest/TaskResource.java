@@ -64,6 +64,7 @@ public class TaskResource {
     /* Only for Project Manager */
     @PutMapping("/update")
     public ResponseEntity<?> update(@RequestPart("dto") TaskDto dto,
+                                    @RequestPart(value = "isTaskReport", required = false) boolean isTaskReport,
                                     @RequestPart("files") List<MultipartFile> files,
                                     @ApiIgnore @CurrentUser UserPrincipal userPrincipal) {
         log.info("REST request to update {}: {}", ENTITY_NAME, dto);
@@ -72,10 +73,10 @@ public class TaskResource {
         Long userId = userPrincipal.getId();
         if (!userProjectService.isUserInProject(userId, projectId))
             return new ResponseEntity<>(ErrorEntity.notFound("Not found"), HttpStatus.NOT_FOUND);
-        if (!userProjectService.isUserProjectInRole(userId, projectId, ProjectRole.ROLE_MANAGER))
+        if (!userProjectService.isUserProjectInRole(userId, projectId, ProjectRole.ROLE_MANAGER) && !isTaskReport)
             return new ResponseEntity<>(ErrorEntity.forbidden("Access denied"), HttpStatus.FORBIDDEN);
 
-        taskService.update(dto, files);
+        taskService.update(dto, isTaskReport, files);
         return ResponseEntity.ok().build();
     }
 

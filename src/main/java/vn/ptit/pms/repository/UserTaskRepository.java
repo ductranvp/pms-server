@@ -1,6 +1,7 @@
 package vn.ptit.pms.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import vn.ptit.pms.domain.User;
 import vn.ptit.pms.domain.UserTask;
@@ -11,6 +12,10 @@ import java.util.List;
 
 public interface UserTaskRepository extends JpaRepository<UserTask, UserTaskKey> {
     List<UserTask> findByIdUserId(Long userId);
+
+    @Modifying
+    @Query(value = "DELETE FROM user_task ut WHERE ut.user_id = ?1", nativeQuery = true)
+    int deleteUserTask(Long userId);
 
     List<UserTask> findByIdTaskId(Long taskId);
 

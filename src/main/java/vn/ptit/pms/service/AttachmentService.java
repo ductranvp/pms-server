@@ -8,6 +8,7 @@ import vn.ptit.pms.domain.Attachment;
 import vn.ptit.pms.domain.Notification;
 import vn.ptit.pms.domain.User;
 import vn.ptit.pms.domain.UserNotification;
+import vn.ptit.pms.domain.enumeration.AttachmentType;
 import vn.ptit.pms.domain.key.UserNotificationKey;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.AttachmentRepository;
@@ -21,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,14 +41,28 @@ public class AttachmentService {
     @Autowired
     private UserTaskService userTaskService;
 
-    public Attachment save(Long projectId, Long taskId, Long commentId, MultipartFile file) {
+    public Attachment save(Long projectId, Long taskId, Long commentId, boolean isTaskReport, String description, MultipartFile file) {
         String attachmentDir = "http://localhost:" + serverPort + "/attachment/";
         Attachment attachment = new Attachment();
         attachment.setName(file.getOriginalFilename());
         attachment.setType(file.getContentType());
-        attachment.setProjectId(projectId);
-        attachment.setTaskId(taskId);
-        attachment.setCommentId(commentId);
+        attachment.setDescription(description);
+        if (projectId != null) {
+            attachment.setTargetType(AttachmentType.PROJECT);
+            attachment.setTargetId(projectId);
+        }
+
+        if (taskId != null){
+            if (isTaskReport) attachment.setTargetType(AttachmentType.TASK_REPORT);
+            else attachment.setTargetType(AttachmentType.TASK);
+            attachment.setTargetId(taskId);
+        }
+
+        if (commentId != null){
+            attachment.setTargetType(AttachmentType.COMMENT);
+            attachment.setTargetId(commentId);
+        }
+
         String fileName = UUID.randomUUID().toString() + getExtensionFile(file.getOriginalFilename());
         attachment.setUrl(attachmentDir + fileName);
         try {
@@ -73,16 +87,15 @@ public class AttachmentService {
     }
 
     @Transactional
-    public void saveProjectAttachment(Long projectId, List<MultipartFile> files){
-        List<AttachmentDto> result = new ArrayList<>();
+    public void saveProjectAttachment(Long projectId, String description, List<MultipartFile> files){
         files.forEach(file -> {
-            save(projectId, null, null, file);
+            save(projectId, null, null, false, description, file);
         });
     }
 
     public List<AttachmentDto> getProjectAttachment(Long projectId){
         List<AttachmentDto> result = new ArrayList<>();
-        attachmentRepository.findByProjectId(projectId).forEach(att -> {
+        attachmentRepository.findByTargetTypeAndTargetId(AttachmentType.PROJECT, projectId).forEach(att -> {
             AttachmentDto dto = new AttachmentDto(att);
             dto.setCreatedBy(new UserDto(userService.getUserById(att.getCreatedBy())));
             result.add(dto);
@@ -103,11 +116,21 @@ public class AttachmentService {
     }
 
     public List<Attachment> getByTaskId(Long taskId) {
-        return attachmentRepository.findByTaskId(taskId);
+        return attachmentRepository.findByTargetTypeAndTargetId(AttachmentType.TASK, taskId);
+    }
+
+    public List<AttachmentDto> getTaskReport(Long taskId) {
+        List<AttachmentDto> result = new ArrayList<>();
+        attachmentRepository.findByTargetTypeAndTargetId(AttachmentType.TASK_REPORT, taskId).forEach(att -> {
+            AttachmentDto dto = new AttachmentDto(att);
+            dto.setCreatedBy(new UserDto(userService.getUserById(att.getCreatedBy())));
+            result.add(dto);
+        });
+        return result;
     }
 
     public List<Attachment> getByCommentId(Long commentId) {
-        return attachmentRepository.findByCommentId(commentId);
+        return attachmentRepository.findByTargetTypeAndTargetId(AttachmentType.COMMENT, commentId);
     }
 
     public List<Attachment> getAll() {
@@ -125,6 +148,6 @@ public class AttachmentService {
     }
 
     public List<Attachment> getByProjectId(Long projectId) {
-        return attachmentRepository.findByProjectId(projectId);
+        return attachmentRepository.findByTargetTypeAndTargetId(AttachmentType.PROJECT, projectId);
     }
 }

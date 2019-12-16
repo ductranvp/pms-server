@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.ptit.pms.domain.Attachment;
+import vn.ptit.pms.domain.enumeration.AttachmentType;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -20,9 +21,9 @@ public class AttachmentDto {
     private String name;
     private String url;
     private String type;
-    private Long projectId;
-    private Long taskId;
-    private Long commentId;
+    private String description;
+    private AttachmentType targetType;
+    private Long targetId;
     private UserDto createdBy;
     private Instant createdDate;
 
@@ -31,9 +32,9 @@ public class AttachmentDto {
         this.name = attachment.getName();
         this.url = attachment.getUrl();
         this.type = attachment.getType();
-        this.projectId = attachment.getProjectId();
-        this.taskId = attachment.getTaskId();
-        this.commentId = attachment.getCommentId();
+        this.description = attachment.getDescription();
+        this.targetId = attachment.getTargetId();
+        this.targetType = attachment.getTargetType();
         this.createdDate = attachment.getCreatedDate();
     }
 }

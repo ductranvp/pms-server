@@ -60,16 +60,22 @@ public class TaskService {
     }
 
     @Transactional
-    public void update(TaskDto dto, List<MultipartFile> files) {
+    public void update(TaskDto dto, boolean isTaskReport, List<MultipartFile> files) {
         Long taskId = dto.getId();
         /* Attachments */
         for (Attachment att : dto.getRemoveAttachments()) {
             attachmentService.delete(att.getId());
         }
+
+//        for (AttachmentDto att : dto.getRemoveReports()) {
+//            attachmentService.delete(att.getId());
+//        }
+
         for (MultipartFile file : files) {
-            attachmentService.save(null, taskId, null, file);
+            attachmentService.save(null, taskId, null, isTaskReport, null, file);
         }
         /* Assign */
+        if (isTaskReport) return;
         userTaskService.delete(new AssignTaskDto(taskId, dto.getRemoveAssignUserIds()));
         userTaskService.save(new AssignTaskDto(taskId, dto.getAssignUserIds()));
 
@@ -107,6 +113,7 @@ public class TaskService {
         List<UserDto> userDtos = userProjectService.getListUserOfProject(category.getProjectId());
         dto.getAssignedUsers().forEach(userDtos::remove);
         dto.setUnassignedUsers(userDtos);
+        dto.setReports(attachmentService.getTaskReport(taskId));
         return dto;
     }
 

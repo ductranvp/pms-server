@@ -29,6 +29,7 @@ public class Task extends AuditEvent implements Serializable {
     @NotBlank
     private String name;
 
+    @Column(length = 9999)
     private String description;
 
     private int pos;
