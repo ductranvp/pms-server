@@ -10,6 +10,8 @@ import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.TaskRepository;
 import vn.ptit.pms.repository.UserTaskRepository;
 import vn.ptit.pms.service.dto.*;
+import vn.ptit.pms.socket.WebSocketService;
+import vn.ptit.pms.util.WSConstants;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -42,9 +44,10 @@ public class TaskService {
     UserProjectService userProjectService;
     @Autowired
     UserTaskService userTaskService;
-
     @Autowired
     TaskLogService taskLogService;
+    @Autowired
+    WebSocketService webSocketService;
 
     @PersistenceContext
     EntityManager em;
@@ -56,6 +59,7 @@ public class TaskService {
         task.setPos(pos);
         Task savedTask = taskRepository.save(task);
         activityService.save(ActivityDto.created(savedTask.getId()));
+        webSocketService.sendMessage(WSConstants.TASK);
         return savedTask;
     }
 
@@ -84,6 +88,7 @@ public class TaskService {
             activityService.save(ActivityDto.changePriority(dto.getId(), dto.getPriority().name()));
         }
         taskRepository.save(dto.updateAttribute(oldTask));
+        webSocketService.sendMessage(WSConstants.TASK);
     }
 
     @Transactional
@@ -93,6 +98,7 @@ public class TaskService {
             taskRepository.updatePos(tasks.get(i).getId(), pos);
             pos += INCREMENT;
         }
+        webSocketService.sendMessage(WSConstants.TASK);
     }
 
     public Long getProjectIdByTaskId(Long taskId) {
@@ -210,7 +216,9 @@ public class TaskService {
             activityService.save(ActivityDto.moveTask(task.getId(), task.getStatus().name()));
         }
         oldTask.setPos(task.getPos());
+        oldTask.setCategoryId(task.getCategoryId());
         oldTask.setStatus(task.getStatus());
+        webSocketService.sendMessage(WSConstants.TASK);
         taskRepository.save(oldTask);
     }
 
@@ -219,6 +227,7 @@ public class TaskService {
             Task task = taskRepository.findById(id).get();
             task.setDeleted(true);
             taskRepository.save(task);
+            webSocketService.sendMessage(WSConstants.TASK);
         } catch (Exception e) {
             throw new AppException(ENTITY_NAME + " " + id + " could not be found");
         }
@@ -229,6 +238,7 @@ public class TaskService {
         activityService.save(ActivityDto.updateProgress(task.getId(), progress));
         task.setProgress(progress);
         taskRepository.save(task);
+        webSocketService.sendMessage(WSConstants.TASK);
     }
 
     public TaskDrawerDto getTaskDrawer(Long taskId, Long userId) {

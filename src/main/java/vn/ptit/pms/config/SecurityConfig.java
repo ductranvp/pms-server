@@ -85,6 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/api/account/activate",
                 "/api/account/activation_key",
                 "/api/account/reset_password/**",
+                "/websocket/**"
         };
 
         http

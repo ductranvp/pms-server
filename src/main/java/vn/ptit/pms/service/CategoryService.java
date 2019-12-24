@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import vn.ptit.pms.domain.Category;
 import vn.ptit.pms.exception.AppException;
 import vn.ptit.pms.repository.CategoryRepository;
+import vn.ptit.pms.socket.WebSocketService;
+import vn.ptit.pms.util.WSConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +17,22 @@ public class CategoryService {
     private final int INCREMENT = (int) Math.pow(2, 16);
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private WebSocketService webSocketService;
 
     public Category create(Category category) {
         Long projectId = category.getProjectId();
         Integer lastPos = categoryRepository.getLastCategoryPos(projectId);
         int pos = lastPos != null ? lastPos + INCREMENT : INCREMENT - 1;
         category.setPos(pos);
+        webSocketService.sendMessage(WSConstants.TASK);
         return categoryRepository.save(category);
     }
 
     public Category updatePos(Category category) {
         Category entityToUpdate = categoryRepository.getOne(category.getId());
         entityToUpdate.setPos(category.getPos());
+        webSocketService.sendMessage(WSConstants.TASK);
         return categoryRepository.save(entityToUpdate);
     }
 
@@ -40,12 +46,14 @@ public class CategoryService {
             pos += INCREMENT;
             result.add(cat);
         }
+        webSocketService.sendMessage(WSConstants.TASK);
         return result;
     }
 
     public Category updateName(Category category) {
         Category entityToUpdate = categoryRepository.getOne(category.getId());
         entityToUpdate.setName(category.getName());
+        webSocketService.sendMessage(WSConstants.TASK);
         return categoryRepository.save(entityToUpdate);
     }
 
@@ -67,6 +75,7 @@ public class CategoryService {
             int pos = categoryRepository.getLastCategoryPos(category.getProjectId());
             category.setPos(pos + INCREMENT);
             category.setArchived(false);
+            webSocketService.sendMessage(WSConstants.TASK);
             categoryRepository.save(category);
         } catch (NoSuchElementException e) {
             throw new AppException("Category " + id + " could not be found");
@@ -78,6 +87,7 @@ public class CategoryService {
             Category category = categoryRepository.findById(id).get();
             category.setPos(-1);
             category.setArchived(true);
+            webSocketService.sendMessage(WSConstants.TASK);
             categoryRepository.save(category);
         } catch (NoSuchElementException e) {
             throw new AppException("Category " + id + " could not be found");
@@ -89,6 +99,7 @@ public class CategoryService {
             Category category = categoryRepository.findById(id).get();
             category.setPos(-2);
             category.setDeleted(true);
+            webSocketService.sendMessage(WSConstants.TASK);
             categoryRepository.save(category);
         } catch (NoSuchElementException e) {
             throw new AppException("Category " + id + " could not be found");
